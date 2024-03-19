@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "py-helper"
+version = "0.1.0"
+description = "A small python helper library for web3 ai agent"
+authors = ["Ge Yunlong <geyunlong@hashkey.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^2.6.4"
+memoization = "^0.4.0"
+datamodel-code-generator = "^0.25.5"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
