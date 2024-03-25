@@ -52,7 +52,7 @@ def struct_type_convert_py_to_c(model_type: Type[BaseModel]) -> Type[Structure]:
     class CStruct(Structure):
         _fields_ = [
             (name, type_convert_py_to_c(field.annotation))
-            for name, field in model_type.model_fields.items()
+            for name, field in model_type.__fields__.items()
         ]
 
     return CStruct
@@ -95,7 +95,7 @@ def dict_type_convert_py_to_c(c_type: CType) -> Type[Structure]:
 def arg_types_convert_py_to_c(model_type: Type[BaseModel]) -> List:
     return [
         type_convert_py_to_c(field.annotation)
-        for name, field in model_type.model_fields.items()
+        for name, field in model_type.__fields__.items()
     ]
 
 
@@ -132,7 +132,7 @@ def struct_value_convert_c_to_py(model_type: Type[BaseModel], c_struct: Structur
     return model_type(
         **{
             name: value_convert_c_to_py(field.annotation, getattr(c_struct, name))
-            for name, field in model_type.model_fields.items()
+            for name, field in model_type.__fields__.items()
         }
     )
 
@@ -192,7 +192,7 @@ def value_convert_py_to_c(py_type: PyType, py_value: Any) -> Any:
 def arg_values_convert_py_to_c(model_type: Type[BaseModel], model_value: BaseModel) -> List:
     return [
         value_convert_py_to_c(field.annotation, getattr(model_value, name))
-        for name, field in model_type.model_fields.items()
+        for name, field in model_type.__fields__.items()
     ]
 
 
@@ -201,7 +201,7 @@ def struct_value_convert_py_to_c(model_type: Type[BaseModel], model_value: BaseM
     return c_struct(
         **{
             name: value_convert_py_to_c(field.annotation, getattr(model_value, name))
-            for name, field in model_type.model_fields.items()
+            for name, field in model_type.__fields__.items()
         }
     )
 

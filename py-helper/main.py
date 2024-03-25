@@ -35,20 +35,20 @@ class TVLQueryResult(BaseModel):
 
 if __name__ == '__main__':
     schema = ToolSchema(
-        id="defillama-query-tvl",
         name="query_tvl",
         description="query tvl data from defillama",
-        args_schema=TVLQueryArgs.model_json_schema(),
-        return_schema=TVLQueryResult.model_json_schema(),
+        args_schema=TVLQueryArgs.schema(),
+        result_schema=TVLQueryResult.schema(),
     )
     # print tool schema
-    print(schema.model_dump_json(indent=2))
+    print(schema.json(indent=2))
 
     print("\n===============Running Tool===============\n")
 
     args = TVLQueryArgs(protocol="lido", blockchain="ethereum")
     try:
         resp = schema.run_tool("../go-tools/output/defillama.so", args)
-        print(resp.model_dump_json(indent=2))
+        if resp is not None:
+            print(resp.json(indent=2))
     except Exception as e:
         print(e)

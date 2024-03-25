@@ -13,15 +13,13 @@ from .converter import (arg_types_convert_py_to_c, struct_type_convert_py_to_c, 
 class ToolSchema(BaseModel):
     """The schema for a tool. It defines the input arguments and the return type of the tool."""
 
-    id: str
-    """The unique identifier of this tool."""
     name: str
     """The unique name of the tool that clearly communicates its purpose."""
     description: str
     """Used to tell the model how/when/why to use the tool."""
     args_schema: Optional[Dict[str, Any]] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
-    return_schema: Optional[Dict[str, Any]] = None
+    result_schema: Optional[Dict[str, Any]] = None
     """Pydantic model class to validate and parse the tool's output."""
     return_direct: bool = False
     """Whether to return the tool's output directly. Setting this to True means that after the tool is called, the 
@@ -41,11 +39,11 @@ class ToolSchema(BaseModel):
         return self.create_mode_type_from_schema(self.args_schema)
 
     @property
-    def return_schema_model(self) -> Optional[Type[BaseModel]]:
+    def result_schema_model(self) -> Optional[Type[BaseModel]]:
         """Returns the Pydantic model class to validate and parse the tool's output."""
-        if self.return_schema is None:
+        if self.result_schema is None:
             return None
-        return self.create_mode_type_from_schema(self.return_schema)
+        return self.create_mode_type_from_schema(self.result_schema)
 
     @staticmethod
     def create_mode_type_from_schema(_schema: Dict[str, Any]) -> Optional[Type[BaseModel]]:
@@ -79,12 +77,12 @@ class ToolSchema(BaseModel):
             raise ValueError(f"Failed to load tool at {path}: {e}")
 
         args_schema = self.args_schema_model
-        return_schema = self.return_schema_model
+        result_schema = self.result_schema_model
 
-        func = getattr(lib, self.name)
-        func.argtypes = arg_types_convert_py_to_c(args_schema) if args_schema else []
-        func.restype = struct_type_convert_py_to_c(return_schema) if return_schema else None
+        c_func = getattr(lib, self.name)
+        c_func.argtypes = arg_types_convert_py_to_c(args_schema) if args_schema else []
+        c_func.restype = struct_type_convert_py_to_c(result_schema) if result_schema else None
 
         c_args = arg_values_convert_py_to_c(args_schema, args) if args_schema else []
-        c_resp = func(*c_args)
-        return struct_value_convert_c_to_py(return_schema, c_resp) if return_schema else None
+        c_res = c_func(*c_args)
+        return struct_value_convert_c_to_py(result_schema, c_res) if result_schema else None
