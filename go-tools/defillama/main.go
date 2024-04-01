@@ -22,11 +22,14 @@ typedef struct {
 import "C"
 
 //export query_tvl
-func query_tvl(protocol C.OptionalStr, blockchain C.OptionalStr) C.TVLResult {
+func query_tvl(protocol *C.char, blockchain *C.char) C.TVLResult {
+	//func query_tvl(protocol C.OptionalStr, blockchain C.OptionalStr) C.TVLResult {
 	//nameIsSome := bool(name.is_some)
 	//blockchainIsSome := bool(blockchain.is_some)
-	goProtocol := C.GoString(protocol.value)
-	goBlockchain := C.GoString(blockchain.value)
+	//goProtocol := C.GoString(protocol.value)
+	//goBlockchain := C.GoString(blockchain.value)
+	goProtocol := C.GoString(protocol)
+	goBlockchain := C.GoString(blockchain)
 
 	resp, err := http.Get("https://api.llama.fi/protocols")
 	if err != nil {
