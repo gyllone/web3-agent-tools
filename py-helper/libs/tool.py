@@ -2,12 +2,13 @@ import json
 
 from ctypes import cdll
 from typing import Optional, Type, Dict, Any, Tuple
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, create_model
+from pydantic.fields import FieldInfo, Undefined
 from datamodel_code_generator.model import DataModelFieldBase
 from datamodel_code_generator.parser.jsonschema import JsonSchemaParser
 
-from .converter import (arg_types_convert_py_to_c, struct_type_convert_py_to_c, arg_values_convert_py_to_c,
-                        struct_value_convert_c_to_py)
+from .converter import (arg_types_convert_py_to_c, type_convert_py_to_c, arg_values_convert_py_to_c,
+                        value_convert_c_to_py)
 
 
 class ToolSchema(BaseModel):
@@ -34,19 +35,15 @@ class ToolSchema(BaseModel):
     @property
     def args_schema_model(self) -> Optional[Type[BaseModel]]:
         """Returns the Pydantic model class to validate and parse the tool's input arguments."""
-        if self.args_schema is None:
-            return None
-        return self.create_mode_type_from_schema(self.args_schema)
+        return self.create_model_type_from_schema(self.args_schema) if self.args_schema else None
 
     @property
     def result_schema_model(self) -> Optional[Type[BaseModel]]:
         """Returns the Pydantic model class to validate and parse the tool's output."""
-        if self.result_schema is None:
-            return None
-        return self.create_mode_type_from_schema(self.result_schema)
+        return self.create_model_type_from_schema(self.result_schema) if self.result_schema else None
 
     @staticmethod
-    def create_mode_type_from_schema(_schema: Dict[str, Any]) -> Optional[Type[BaseModel]]:
+    def create_model_type_from_schema(_schema: Dict[str, Any]) -> Optional[Type[BaseModel]]:
         parser = JsonSchemaParser(
             json.dumps(_schema),
             validation=True,
@@ -55,25 +52,31 @@ class ToolSchema(BaseModel):
         )
         parser.parse()
 
-        def _build_field(field: DataModelFieldBase) -> Tuple:
-            if field.has_default:
-                return field.data_type.type_hint, Field(field.default, alias=field.alias, description=field.docstring)
-            else:
-                return field.data_type.type_hint, Field(alias=field.alias, description=field.docstring)
+        def _build_field(field: DataModelFieldBase) -> Tuple[str, FieldInfo]:
+            return (
+                field.type_hint,
+                FieldInfo(
+                    default=field.default if field.has_default else Undefined,
+                    alias=field.alias,
+                    description=field.docstring,
+                )
+            )
 
-        if len(parser.results) > 0:
+        if len(parser.results) == 0:
+            return None
+        elif len(parser.results) == 1:
             result = parser.results[0]
             return create_model(
                 result.name,
                 **{field.name: _build_field(field) for field in result.fields}
             )
         else:
-            return None
+            raise ValueError("too many models, only support 1")
 
     def run_tool(self, path: str, args: Optional[BaseModel]) -> Optional[BaseModel]:
         try:
             lib = cdll.LoadLibrary(path)
-        except Exception as e:
+        except BaseException as e:
             raise ValueError(f"Failed to load tool at {path}: {e}")
 
         args_schema = self.args_schema_model
@@ -81,8 +84,21 @@ class ToolSchema(BaseModel):
 
         c_func = getattr(lib, self.name)
         c_func.argtypes = arg_types_convert_py_to_c(args_schema) if args_schema else []
-        c_func.restype = struct_type_convert_py_to_c(result_schema) if result_schema else None
+        c_func.restype = type_convert_py_to_c(result_schema) if result_schema else None
+
+        c_release_func = getattr(lib, f"{self.name}_release")
+        c_release_func.argtypes = [c_func.restype]
+        c_release_func.restype = None
 
         c_args = arg_values_convert_py_to_c(args_schema, args) if args_schema else []
         c_res = c_func(*c_args)
-        return struct_value_convert_c_to_py(result_schema, c_res) if result_schema else None
+
+        if result_schema:
+            if not c_res:
+                raise ValueError(f"Tool {self.name} returned nil pointer")
+            else:
+                py_res = value_convert_c_to_py(result_schema, c_res)
+                c_release_func(c_res)
+                return py_res
+        else:
+            return None
