@@ -2,5 +2,6 @@
 
 ## compile
 ```shell
-go build -o outputs/<toolkit>.so -buildmode=c-shared <directory>/*
+cd <directory>
+go build -ldflags "-s -w" -o outputs/<toolkit>.so -buildmode=c-shared
 ```

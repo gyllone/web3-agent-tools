@@ -45,9 +45,12 @@ if __name__ == '__main__':
 
     print("\n===============Running Tool===============\n")
 
-    args = TVLQueryArgs(protocol="lido", blockchain="ethereum")
+    args = TVLQueryArgs(
+        protocol="lido",
+        blockchain="ethereum",
+    )
     try:
-        resp = schema.run_tool("../go-tools/output/defillama.so", args)
+        resp = schema.run_tool("../go-tools/outputs/defillama.so", args)
         if resp is not None:
             print(resp.json(indent=2))
     except Exception as e:
