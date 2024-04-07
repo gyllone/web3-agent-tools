@@ -1,35 +1,23 @@
-from typing import Optional
+from typing import Optional, TypedDict
 from pydantic import BaseModel, Field
 
 from libs.tool import ToolSchema
 
 
-# class FooArgs(BaseModel):
-#     foo: float = Field(description="Foo")
-#     bar: List["Bar"] = Field(description="Bar")
-#
-#     class Bar(BaseModel):
-#         foo1: "Baz" = Field(description="Foo1")
-#         bar1: int = Field(description="Bar1")
-#
-#         class Baz(BaseModel):
-#             foo2: bool = Field(description="Foo2")
-#             bar2: Dict[str, int] = Field(description="Bar2")
-#             baz2: Optional[str] = Field(description="Baz2")
-#
-#
-# class FooResp(BaseModel):
-#     foo: str
-#     bar: List[str]
-#     baz: Dict[str, float]
+class V(BaseModel):
+    a: str
+    b: int
 
 
 class TVLQueryArgs(BaseModel):
-    protocol: Optional[str] = Field(None, description="Protocol or project name")
+    name: Optional[str] = Field(None, description="Protocol or project name")
     blockchain: Optional[str] = Field(None, description="Blockchain name")
+    t: Optional[V] = Field(None, description="test")
 
 
 class TVLQueryResult(BaseModel):
+    status: bool = Field(description="if query is successful or not")
+    error: str = Field(description="error message if status is false")
     tvl: float = Field(description="Total value locked in USD")
 
 
@@ -45,13 +33,7 @@ if __name__ == '__main__':
 
     print("\n===============Running Tool===============\n")
 
-    args = TVLQueryArgs(
-        protocol="lido",
-        blockchain="ethereum",
-    )
-    try:
-        resp = schema.run_tool("../go-tools/outputs/defillama.so", args)
-        if resp is not None:
-            print(resp.json(indent=2))
-    except Exception as e:
-        print(e)
+    args = TVLQueryArgs(name="lido", blockchain="ethereum")
+    resp = schema.run_tool("../go-tools/outputs/defillama.so", args)
+    if resp is not None:
+        print(resp.json(indent=2))

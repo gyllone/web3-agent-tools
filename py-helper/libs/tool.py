@@ -49,6 +49,8 @@ class ToolSchema(BaseModel):
             validation=True,
             use_schema_description=True,
             use_field_description=True,
+            reuse_model=True,
+            collapse_root_models=True,
         )
         parser.parse()
 

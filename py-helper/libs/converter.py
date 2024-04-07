@@ -2,11 +2,11 @@ import inspect
 import typing
 
 from typing import Type, List, Any, Dict, Optional, get_origin, get_args
-from ctypes import c_bool, c_longlong, c_double, c_char_p, Structure, c_size_t, cast, byref, POINTER
+from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, cast, byref, POINTER
 from pydantic import BaseModel
 
 
-CType = Type[c_bool | c_longlong | c_double | c_char_p | Any]
+CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure | Any]
 PyType = Type[bool | int | float | str | BaseModel | List[Any] | Dict[str, Any] | Optional[Any]]
 
 registered_c_types = {}
