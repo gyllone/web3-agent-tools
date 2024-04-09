@@ -1,270 +1,304 @@
-import inspect
-import typing
+from typing import Type, Any, Optional, Tuple, Mapping
+from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, POINTER, cast
 
-from typing import Type, List, Any, Dict, Optional, get_origin, get_args
-from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, cast, byref, POINTER
-from pydantic import BaseModel
+from libs.schema import Object, Property, Schema
 
 
-CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure | Any]
-PyType = Type[bool | int | float | str | BaseModel | List[Any] | Dict[str, Any] | Optional[Any]]
+CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure]
+PyValue = bool | int | float | str | list[Any] | dict[str, Any] | Mapping[str, Any] | Optional[Any]
+CValue = c_bool | c_longlong | c_double | c_char_p | Structure
 
-registered_c_types = {}
+
+class TypeConverter(object):
+    schema: Schema
+    c_types_cache: dict[str, Type[Structure]] = {}
+
+    def __init__(self, schema: Schema):
+        self.schema = schema
+
+    def get_arg_types(self) -> list[CType]:
+        return [item for _, item in self._get_c_fields(self.schema)]
+
+    def get_structure_type(self) -> Type[Structure]:
+        c_fields = self._get_c_fields(self.schema)
+        return self._wrap_struct("Root", c_fields)
+
+    def _get_c_fields(self, obj: Object) -> list[Tuple[str, CType]]:
+        c_types = []
+        required = obj.required or []
+        properties = obj.properties or {}
+        for key, prop in properties.items():
+            c_type = self._get_c_type(prop)
+            # optional = not required and default is None
+            if key not in required and prop.default is None:
+                c_type = self._wrap_optional(c_type)
+            c_types.append((key, c_type))
+        return c_types
+
+    def _get_c_type(self, prop: Property) -> CType:
+        if prop.allOf:
+            ref_type = prop.allOf[0].get_ref_type()
+        else:
+            ref_type = prop.get_ref_type()
+        if ref_type is not None:
+            objects = self.schema.definitions or {}
+            obj = objects.get(ref_type)
+            if not obj:
+                raise TypeError(f"Ref type {ref_type} not found in objects")
+            c_fields = self._get_c_fields(obj)
+            return self._wrap_struct(ref_type, c_fields)
+
+        if prop.type:
+            if prop.type == "string":
+                return c_char_p
+            elif prop.type == "number":
+                return c_double
+            elif prop.type == "integer":
+                return c_longlong
+            elif prop.type == "boolean":
+                return c_bool
+            elif prop.type == "array":
+                if not prop.items:
+                    raise TypeError("Must define item of list")
+                inner_c_type = self._get_c_type(prop.items)
+                return self._wrap_list(inner_c_type)
+            elif prop.type == "object":
+                if not prop.additionalProperties:
+                    raise TypeError("Must define additional property of dict")
+                inner_c_type = self._get_c_type(prop.additionalProperties)
+                return self._wrap_dict(inner_c_type)
+            else:
+                raise TypeError(f"Unexpected type {prop.type}")
+        else:
+            raise TypeError("Must define type")
+
+    def _wrap_struct(self, name: str, c_fields: list[Tuple[str, CType]]) -> Type[Structure]:
+        name = f"c_structure_{name}"
+        structure = self.c_types_cache.get(name)
+        if not structure:
+            structure = type(
+                name,
+                (Structure,),
+                {
+                    # "_pack_": 1,
+                    "_fields_": c_fields,
+                },
+            )
+            self.c_types_cache[name] = structure  # type: ignore
+        return structure  # type: ignore
+
+    def _wrap_list(self, c_type: CType) -> Type[Structure]:
+        name = f"c_list_{c_type.__name__}"
+        clist = self.c_types_cache.get(name)
+        if not clist:
+            clist = type(
+                name,
+                (Structure,),
+                {
+                    # "_pack_": 1,
+                    "_fields_": [
+                        ("len", c_size_t),
+                        ("values", POINTER(c_type)),
+                    ]
+                },
+            )
+            self.c_types_cache[name] = clist  # type: ignore
+        return clist  # type: ignore
+
+    def _wrap_dict(self, c_type: CType) -> Type[Structure]:
+        name = f"c_dict_{c_type.__name__}"
+        cdict = self.c_types_cache.get(name)
+        if not cdict:
+            cdict = type(
+                name,
+                (Structure,),
+                {
+                    # "_pack_": 1,
+                    "_fields_": [
+                        ("len", c_size_t),
+                        ("keys", POINTER(c_char_p)),
+                        ("values", POINTER(c_type)),
+                    ]
+                },
+            )
+            self.c_types_cache[name] = cdict  # type: ignore
+        return cdict  # type: ignore
+
+    def _wrap_optional(self, c_type: CType) -> Type[Structure]:
+        name = f"c_optional_{c_type.__name__}"
+        c_optional = self.c_types_cache.get(name)
+        if not c_optional:
+            c_optional = type(
+                name,
+                (Structure,),
+                {
+                    # "_pack_": 1,
+                    "_fields_": [
+                        ("is_some", c_bool),
+                        ("value", c_type),
+                    ]
+                },
+            )
+            self.c_types_cache[name] = c_optional  # type: ignore
+        return c_optional  # type: ignore
 
 
-def struct_type_convert_py_to_c(model_type: Type[BaseModel]) -> Type[Structure]:
-    name = f"c_structure_{model_type.__name__}"
-    structure = registered_c_types.get(name)
-    if not structure:
-        structure = type(
-            name,
-            (Structure,),
-            {
-                "_fields_": [
-                    (name, type_convert_py_to_c(field.annotation))
-                    for name, field in model_type.__fields__.items()
-                ]
-            },
+class ValueConverter(TypeConverter):
+    def py_object_to_c_values(self, py_object: Mapping[str, PyValue]) -> list[CValue]:
+        c_values = self._py_values_to_c_values(self.schema, py_object)
+        return list(c_values.values())
+
+    def c_struct_to_py_object(self, structure: Structure) -> Mapping[str, Any]:
+        return self._c_struct_to_py_object(self.schema, structure)
+
+    def _c_value_to_py_value(self, prop: Property, c_value: CValue) -> PyValue:
+        if prop.allOf:
+            ref_type = prop.allOf[0].get_ref_type()
+        else:
+            ref_type = prop.get_ref_type()
+        if ref_type is not None:
+            objects = self.schema.definitions or {}
+            obj = objects.get(ref_type)
+            if not obj:
+                raise TypeError(f"Ref type {ref_type} not found in objects")
+            return self._c_struct_to_py_object(obj, c_value)
+
+        if prop.type:
+            if prop.type == "string":
+                return str(c_value.decode("utf-8"))
+            elif prop.type in ("number", "integer", "boolean"):
+                return c_value
+            elif prop.type == "array":
+                if not prop.items:
+                    raise TypeError("Must define item of list")
+                return self._c_list_to_py_list(prop.items, c_value)
+            elif prop.type == "object":
+                if not prop.additionalProperties:
+                    raise TypeError("Must define additional property of dict")
+                return self._c_dict_to_py_dict(prop.additionalProperties, c_value)
+            else:
+                raise TypeError(f"Unexpected type {prop.type}")
+        else:
+            raise TypeError("Must define type")
+
+    def _py_value_to_c_value(self, prop: Property, py_value: PyValue) -> CValue:
+        if prop.allOf:
+            ref_type = prop.allOf[0].get_ref_type()
+        else:
+            ref_type = prop.get_ref_type()
+        if ref_type is not None:
+            objects = self.schema.definitions or {}
+            obj = objects.get(ref_type)
+            if not obj:
+                raise TypeError(f"Ref type {ref_type} not found in objects")
+            return self._py_object_to_c_struct(ref_type, obj, py_value)
+
+        if prop.type:
+            if prop.type == "string":
+                return c_char_p(py_value.encode("utf-8"))
+            elif prop.type == "number":
+                return c_double(py_value)
+            elif prop.type == "integer":
+                return c_longlong(py_value)
+            elif prop.type == "boolean":
+                return c_bool(py_value)
+            elif prop.type == "array":
+                if not prop.items:
+                    raise TypeError("Must define item of list")
+                return self._py_list_to_c_list(prop.items, py_value)
+            elif prop.type == "object":
+                if not prop.additionalProperties:
+                    raise TypeError("Must define additional property of dict")
+                return self._py_dict_to_c_dict(prop.additionalProperties, py_value)
+            else:
+                raise TypeError(f"Unexpected type {prop.type}")
+        else:
+            raise TypeError("Must define type")
+
+    def _c_struct_to_py_object(self, obj: Object, c_struct: Structure) -> Mapping[str, Any]:
+        _object = {}
+        required = obj.required or []
+        properties = obj.properties or {}
+        for key, prop in properties.items():
+            if key not in required:
+                if prop.default is None:
+                    # optional
+                    c_value = getattr(c_struct, key)
+                    _object[key] = self._c_optional_to_py_optional(prop, c_value)
+                else:
+                    _object[key] = prop.default
+            else:
+                c_value = getattr(c_struct, key)
+                _object[key] = self._c_value_to_py_value(prop, c_value)
+        return _object
+
+    def _py_values_to_c_values(self, obj: Object, py_values: Mapping[str, PyValue]) -> Mapping[str, CValue]:
+        c_values = {}
+        required = obj.required or []
+        properties = obj.properties or {}
+        for key, prop in properties.items():
+            if key not in required:
+                if prop.default is None:
+                    # optional
+                    c_values[key] = self._py_optional_to_c_optional(prop, py_values[key])
+                else:
+                    c_values[key] = self._py_value_to_c_value(prop, prop.default)
+            else:
+                c_values[key] = self._py_value_to_c_value(prop, py_values[key])
+
+        return c_values
+
+    def _py_object_to_c_struct(self, name: str, obj: Object, py_object: Mapping[str, Any]) -> Structure:
+        c_fields = self._get_c_fields(obj)
+        c_struct = self._wrap_struct(name, c_fields)
+        structure = self._py_values_to_c_values(obj, py_object)
+        return c_struct(**structure)
+
+    def _c_list_to_py_list(self, prop: Property, c_list: Structure) -> list[Any]:
+        c_type = self._get_c_type(prop)
+        values_pointer = cast(c_list.values, POINTER(c_type * c_list.len))
+        return [
+            self._c_value_to_py_value(prop, values_pointer.contents[i])
+            for i in range(int(c_list.len))
+        ]
+
+    def _py_list_to_c_list(self, prop: Property, py_list: list[Any]) -> Structure:
+        c_type = self._get_c_type(prop)
+        c_list = self._wrap_list(c_type)
+        _len = len(py_list)
+        return c_list(
+            len=_len,
+            values=(c_type * _len)(*[self._py_value_to_c_value(prop, py_value) for py_value in py_list])
         )
-        registered_c_types[name] = structure
-    return structure  # type: ignore
 
-
-def wrap_list_type_to_c_struct(c_type: CType) -> Type[Structure]:
-    name = f"c_list_{c_type.__name__}"
-    clist = registered_c_types.get(name)
-    if not clist:
-        clist = type(
-            name,
-            (Structure,),
-            {
-                "_fields_": [
-                    ("len", c_size_t),
-                    ("values", POINTER(c_type)),
-                ]
-            },
-        )
-        registered_c_types[name] = clist
-    return clist  # type: ignore
-
-
-def wrap_optional_type_to_c_struct(c_type: CType) -> Type[Structure]:
-    name = f"c_optional_{c_type.__name__}"
-    c_optional = registered_c_types.get(name)
-    if not c_optional:
-        c_optional = type(
-            name,
-            (Structure,),
-            {
-                "_fields_": [
-                    ("is_some", c_bool),
-                    ("value", c_type),
-                ]
-            },
-        )
-        registered_c_types[name] = c_optional
-    return c_optional  # type: ignore
-
-
-def wrap_dict_type_to_c_struct(c_type: CType) -> Type[Structure]:
-    name = f"c_dict_{c_type.__name__}"
-    cdict = registered_c_types.get(name)
-    if not cdict:
-        cdict = type(
-            name,
-            (Structure,),
-            {
-                "_fields_": [
-                    ("len", c_size_t),
-                    ("keys", POINTER(c_char_p)),
-                    ("values", POINTER(c_type)),
-                ]
-            },
-        )
-        registered_c_types[name] = cdict
-    return cdict  # type: ignore
-
-
-def type_convert_py_to_c(py_type: PyType) -> CType:
-    if inspect.isclass(py_type):
-        if py_type is bool:
-            return c_bool
-        elif py_type is int:
-            return c_longlong
-        elif py_type is float:
-            return c_double
-        elif py_type is str:
-            return c_char_p
-        elif issubclass(py_type, BaseModel):
-            return POINTER(struct_type_convert_py_to_c(py_type))
-        else:
-            raise TypeError(f"Unsupported python class type {py_type}")
-
-    origin = get_origin(py_type)
-    args = get_args(py_type)
-    if origin is list:
-        c_type = type_convert_py_to_c(args[0])
-        return POINTER(wrap_list_type_to_c_struct(c_type))
-    elif origin is dict:
-        if args[0] is str:
-            c_type = type_convert_py_to_c(args[1])
-            return POINTER(wrap_dict_type_to_c_struct(c_type))
-        else:
-            raise TypeError(f"Unsupported key type {args[0]}")
-    elif origin is typing.Union:
-        if len(args) == 2 and args[1] is type(None):
-            c_type = type_convert_py_to_c(args[0])
-            return POINTER(wrap_optional_type_to_c_struct(c_type))
-        else:
-            raise TypeError(f"Unsupported type {py_type}")
-    else:
-        raise TypeError(f"Unsupported type {py_type}")
-
-
-def arg_types_convert_py_to_c(model_type: Type[BaseModel]) -> List:
-    return [
-        type_convert_py_to_c(field.annotation)
-        for name, field in model_type.__fields__.items()
-    ]
-
-
-def value_convert_c_to_py(py_type: PyType, c_value: Any) -> Any:
-    if inspect.isclass(py_type):
-        if py_type in (bool, int, float):
-            return c_value
-        elif py_type is str:
-            return str(c_value.decode("utf-8"))
-        elif issubclass(py_type, BaseModel):
-            return struct_value_convert_c_to_py(py_type, c_value.contents)
-        else:
-            raise TypeError(f"Unsupported python class type {py_type}")
-
-    origin = get_origin(py_type)
-    args = get_args(py_type)
-    if origin is list:
-        return list_value_convert_c_to_py(args[0], c_value.contents)
-    elif origin is dict:
-        if args[0] is str:
-            return dict_value_convert_c_to_py(args[1], c_value.contents)
-        else:
-            raise TypeError(f"Unsupported key type {args[0]}")
-    elif origin is typing.Union:
-        if len(args) == 2 and args[1] is type(None):
-            return optional_value_convert_c_to_py(args[0], c_value.contents)
-        else:
-            raise TypeError(f"Unsupported type {py_type}")
-    else:
-        raise TypeError(f"Unsupported type {py_type}")
-
-
-def struct_value_convert_c_to_py(model_type: Type[BaseModel], c_struct: Structure) -> BaseModel:
-    return model_type(
-        **{
-            name: value_convert_c_to_py(field.annotation, getattr(c_struct, name))
-            for name, field in model_type.__fields__.items()
+    def _c_dict_to_py_dict(self, prop: Property, c_dict: Structure) -> dict[str, Any]:
+        c_type = self._get_c_type(prop)
+        keys_pointer = cast(c_dict.keys, POINTER(c_char_p * c_dict.len))
+        values_pointer = cast(c_dict.values, POINTER(c_type * c_dict.len))
+        return {
+            keys_pointer.contents[i].decode("utf-8"):
+                self._c_value_to_py_value(prop, values_pointer.contents[i])
+            for i in range(int(c_dict.len))
         }
-    )
 
+    def _py_dict_to_c_dict(self, prop: Property, py_dict: dict[str, Any]) -> Structure:
+        c_type = self._get_c_type(prop)
+        c_dict = self._wrap_dict(c_type)
+        _len = len(py_dict)
+        return c_dict(
+            len=_len,
+            keys=(c_char_p * _len)(*[c_char_p(key.encode("utf-8")) for key in py_dict.keys()]),
+            values=(c_type * _len)(*[self._py_value_to_c_value(prop, py_value) for py_value in py_dict.values()])
+        )
 
-def list_value_convert_c_to_py(py_type: PyType, c_list: Structure) -> List[Any]:
-    c_type = type_convert_py_to_c(py_type)
-    values_pointer = cast(c_list.values, POINTER(c_type * c_list.len))
-    return [
-        value_convert_c_to_py(py_type, values_pointer.contents[i])
-        for i in range(int(c_list.len))
-    ]
+    def _c_optional_to_py_optional(self, prop: Property, c_optional: Structure) -> Optional[Any]:
+        return self._c_value_to_py_value(prop, c_optional.value) if c_optional.is_some else None
 
-
-def dict_value_convert_c_to_py(py_type: PyType, c_dict: Structure) -> Dict[str, Any]:
-    c_type = type_convert_py_to_c(py_type)
-    keys_pointer = cast(c_dict.keys, POINTER(c_char_p * c_dict.len))
-    values_pointer = cast(c_dict.values, POINTER(c_type * c_dict.len))
-    return {
-        keys_pointer.contents[i].decode("utf-8"):
-            value_convert_c_to_py(py_type, values_pointer.contents[i])
-        for i in range(int(c_dict.len))
-    }
-
-
-def optional_value_convert_c_to_py(c_type: CType, c_struct: Structure) -> Optional[Any]:
-    return value_convert_c_to_py(c_type, c_struct.value) if c_struct.is_some else None
-
-
-def value_convert_py_to_c(py_type: PyType, py_value: Any) -> Any:
-    if inspect.isclass(py_type):
-        if py_type is bool:
-            return c_bool(py_value)
-        elif py_type is int:
-            return c_longlong(py_value)
-        elif py_type is float:
-            return c_double(py_value)
-        elif py_type is str:
-            return c_char_p(py_value.encode("utf-8"))
-        elif issubclass(py_type, BaseModel):
-            return byref(struct_value_convert_py_to_c(py_type, py_value))
+    def _py_optional_to_c_optional(self, prop: Property, py_optional: Optional[Any]) -> Structure:
+        c_type = self._get_c_type(prop)
+        c_optional = self._wrap_optional(c_type)
+        if py_optional is None:
+            # TODO: check this
+            return c_optional(is_some=False)
         else:
-            raise TypeError(f"Unsupported python class type {py_type}")
-
-    origin = get_origin(py_type)
-    args = get_args(py_type)
-    if origin is list:
-        return byref(list_value_convert_py_to_c(args[0], py_value))
-    elif origin is dict:
-        if args[0] is str:
-            return byref(dict_value_convert_py_to_c(args[1], py_value))
-        else:
-            raise TypeError(f"Unsupported key type {args[0]}")
-    elif origin is typing.Union:
-        if len(args) == 2 and args[1] is type(None):
-            return byref(optional_value_convert_py_to_c(args[0], py_value))
-        else:
-            raise TypeError(f"Unsupported type {py_type}")
-    else:
-        raise TypeError(f"Unsupported type {py_type}")
-
-
-def arg_values_convert_py_to_c(model_type: Type[BaseModel], model_value: BaseModel) -> List:
-    return [
-        value_convert_py_to_c(field.annotation, getattr(model_value, name))
-        for name, field in model_type.__fields__.items()
-    ]
-
-
-def struct_value_convert_py_to_c(model_type: Type[BaseModel], model_value: BaseModel) -> Structure:
-    c_struct = struct_type_convert_py_to_c(model_type)
-    return c_struct(
-        **{
-            name: value_convert_py_to_c(field.annotation, getattr(model_value, name))
-            for name, field in model_type.__fields__.items()
-        }
-    )
-
-
-def list_value_convert_py_to_c(py_type: PyType, py_list: List[Any]) -> Structure:
-    c_type = type_convert_py_to_c(py_type)
-    c_list = wrap_list_type_to_c_struct(c_type)
-    _len = len(py_list)
-    return c_list(
-        len=_len,
-        values=(c_type * _len)(*[value_convert_py_to_c(py_type, value) for value in py_list])
-    )
-
-
-def dict_value_convert_py_to_c(py_type: PyType, py_dict: Dict[str, Any]) -> Structure:
-    c_type = type_convert_py_to_c(py_type)
-    c_dict = wrap_dict_type_to_c_struct(c_type)
-    _len = len(py_dict)
-    return c_dict(
-        len=_len,
-        keys=(c_char_p * _len)(*[c_char_p(key.encode("utf-8")) for key in py_dict.keys()]),
-        values=(c_type * _len)(*[value_convert_py_to_c(py_type, value) for value in py_dict.values()])
-    )
-
-
-def optional_value_convert_py_to_c(py_type: PyType, py_value: Optional[Any]) -> Structure:
-    c_type = type_convert_py_to_c(py_type)
-    c_struct = wrap_optional_type_to_c_struct(c_type)
-    if py_value is None:
-        return c_struct(is_some=False)
-    else:
-        return c_struct(is_some=True, value=value_convert_py_to_c(py_type, py_value))
+            return c_optional(is_some=True, value=self._py_value_to_c_value(prop, py_optional))

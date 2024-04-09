@@ -1,7 +1,9 @@
-from typing import Optional, TypedDict
+import json
+from typing import Optional
 from pydantic import BaseModel, Field
 
 from libs.tool import ToolSchema
+from libs.schema import Schema
 
 
 class V(BaseModel):
@@ -9,31 +11,61 @@ class V(BaseModel):
     b: int
 
 
-class TVLQueryArgs(BaseModel):
-    name: Optional[str] = Field(None, description="Protocol or project name")
-    blockchain: Optional[str] = Field(None, description="Blockchain name")
-    t: Optional[V] = Field(None, description="test")
+class A(BaseModel):
+    status: bool = Field(False, description="status")
+    value: float = Field(0, description="value")
+    name: str = Field("", description="name")
 
 
-class TVLQueryResult(BaseModel):
-    status: bool = Field(description="if query is successful or not")
-    error: str = Field(description="error message if status is false")
-    tvl: float = Field(description="Total value locked in USD")
+class B(BaseModel):
+    a: Optional[int] = Field(None, description="test")
+    b: "B"
+    c: dict[str, list[A]] = Field(description="test")
+
+
+class InputInternalA(BaseModel):
+    status: int = Field(description="status")
+    name: str = Field(description="name")
+
+
+class InputInternal(BaseModel):
+    status: bool = Field(description="status")
+    value: float = Field(description="value")
+    name: str = Field(description="name")
+    a: InputInternalA = Field(description="a")
+
+
+class Output(BaseModel):
+    status: bool = Field(description="status")
+    value: float = Field(description="value")
+    name: str = Field(description="name")
+
+
+class Input(BaseModel):
+    input: InputInternal = Field(description="input")
 
 
 if __name__ == '__main__':
     schema = ToolSchema(
-        name="query_tvl",
-        description="query tvl data from defillama",
-        args_schema=TVLQueryArgs.schema(),
-        result_schema=TVLQueryResult.schema(),
+        name="test",
+        description="This is a test",
+        args_schema=Schema.from_model_type(Input),
+        result_schema=Schema.from_model_type(Output),
     )
-    # print tool schema
-    print(schema.json(indent=2))
 
     print("\n===============Running Tool===============\n")
 
-    args = TVLQueryArgs(name="lido", blockchain="ethereum")
-    resp = schema.run_tool("../go-tools/outputs/defillama.so", args)
+    args = Input(
+        input=InputInternal(
+            status=True,
+            value=1.0,
+            name="test",
+            a=InputInternalA(
+                status=200,
+                name="test"
+            ),
+        )
+    )
+    resp = schema.run_tool("../go-tools/outputs/test.so", args.dict(by_alias=True))
     if resp is not None:
-        print(resp.json(indent=2))
+        print(json.dumps(resp, indent=2))
