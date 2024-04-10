@@ -6,43 +6,22 @@ from libs.tool import ToolSchema
 from libs.schema import Schema
 
 
-class V(BaseModel):
-    a: str
-    b: int
+class Param(BaseModel):
+    foo: bool = Field(description="foo")
+    bar: list[float] = Field(description="bar")
+    baz: dict[str, int] = Field(description="baz")
 
 
-class A(BaseModel):
-    status: bool = Field(False, description="status")
-    value: float = Field(0, description="value")
-    name: str = Field("", description="name")
-
-
-class B(BaseModel):
-    a: Optional[int] = Field(None, description="test")
-    b: "B"
-    c: dict[str, list[A]] = Field(description="test")
-
-
-class InputInternalA(BaseModel):
-    status: int = Field(description="status")
-    name: str = Field(description="name")
-
-
-class InputInternal(BaseModel):
-    status: bool = Field(description="status")
-    value: float = Field(description="value")
-    name: str = Field(description="name")
-    a: InputInternalA = Field(description="a")
+class Input(BaseModel):
+    foo: Optional[str] = Field(None, description="foo")
+    bar: list[dict[str, int]] = Field(description="bar")
+    baz: Param = Field(description="baz")
 
 
 class Output(BaseModel):
     status: bool = Field(description="status")
-    value: float = Field(description="value")
-    name: str = Field(description="name")
-
-
-class Input(BaseModel):
-    input: InputInternal = Field(description="input")
+    error: str = Field(description="error")
+    result: Optional[Param] = Field(None, description="result")
 
 
 if __name__ == '__main__':
@@ -56,15 +35,16 @@ if __name__ == '__main__':
     print("\n===============Running Tool===============\n")
 
     args = Input(
-        input=InputInternal(
-            status=True,
-            value=1.0,
-            name="test",
-            a=InputInternalA(
-                status=200,
-                name="test"
-            ),
-        )
+        foo="foo",
+        bar=[
+            {"x": 1, "y": 2},
+            {"x": 3, "y": 4},
+        ],
+        baz=Param(
+            foo=True,
+            bar=[1.0, 2.0],
+            baz={"x": 1, "y": 2},
+        ),
     )
     resp = schema.run_tool("../go-tools/outputs/test.so", args.dict(by_alias=True))
     if resp is not None:
