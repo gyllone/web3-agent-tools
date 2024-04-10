@@ -55,10 +55,11 @@ class ToolSchema(BaseModel):
         c_args = args_converter.py_object_to_c_values(args) if args_converter else []
         c_res = c_func(*c_args)
 
-        if result_converter:
-            py_res = result_converter.c_struct_to_py_object(c_res)
+        try:
+            if result_converter and c_res:
+                return result_converter.c_struct_to_py_object(c_res)
+            else:
+                return None
+        finally:
             if c_release_func and c_res:
                 c_release_func(c_res)
-            return py_res
-        else:
-            return None
