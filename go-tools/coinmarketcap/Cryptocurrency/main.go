@@ -51,6 +51,23 @@ typedef struct {
 	char* error_message;
 	IdMapArr id_maps;
 } IdMapResult;
+
+typedef struct {
+	size_t len;
+	char** keys;
+	char** values;
+} Cryptocurrency;
+
+typedef struct {
+	size_t len;
+	Cryptocurrency* cryptocurrency;
+} CryptocurrencyArr;
+
+typedef struct {
+	bool is_fail;
+	char* error_message;
+	CryptocurrencyArr cryptocurrencies;
+} ListingsLatestResult
 */
 import "C"
 import (
@@ -143,7 +160,7 @@ func query_quotes(ids C.OptionalStr, slug C.OptionalStr, convert C.OptionalStr, 
 		}
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", API_KEY)
+	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
 	req.Header.Set("Accept", "application/json")
 	//req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -273,7 +290,7 @@ func query_id_map(listing_status C.OptionalStr, start C.OptionalInt, limit C.Opt
 		}
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", API_KEY)
+	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
 	req.Header.Set("Accept", "application/json")
 	//req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -368,44 +385,93 @@ func query_id_map_release(result C.IdMapResult) {
 	}
 }
 
+func query_listings_latest(start C.OptionalInt, limit C.OptionalInt, price_min C.OptionalStr, price_max C.OptionalStr,
+	market_cap_min C.OptionalStr, market_cap_max C.OptionalStr,
+	volume_24h_min C.OptionalStr, volume_24h_max C.OptionalStr, circulating_supply_min C.OptionalStr,
+	circulating_supply_max C.OptionalStr, percent_change_24h_min C.OptionalInt, percent_change_24h_max C.OptionalInt, convert C.OptionalStr, convert_id C.OptionalStr, sort C.OprionalStr, sort_dir C.OptionalStr, cryptocurrency_type C.OptionalStr, tag C.OptionalStr, aux C.OptionalStr) C.ListingsLatestResult {
+	return nil
+	//u, err := url.Parse(ListingsLatest)
+	//if err != nil {
+	//	errStr := "Failed to parse URL"
+	//	fmt.Println("go print: ", errStr)
+	//	return C.IdMapResult{
+	//		is_fail:       C.bool(true),
+	//		error_message: C.CString(errStr),
+	//	}
+	//}
+	//// 构建查询参数
+	//listingStatusIsSome := bool(listing_status.is_some)
+	//startIsSome := bool(start.is_some)
+	//limitIsSome := bool(limit.is_some)
+	//sortIsSome := bool(sort.is_some)
+	//symbolIsSome := bool(symbol.is_some)
+	//auxIsSome := bool(aux.is_some)
+	//params := url.Values{}
+	//
+	//if listingStatusIsSome {
+	//	params.Add("listing_status", C.GoString(listing_status.value))
+	//}
+	//
+	//if startIsSome {
+	//	params.Add("start", strconv.Itoa(int(start.value)))
+	//}
+	//if limitIsSome {
+	//	params.Add("limit", strconv.Itoa(int(limit.value)))
+	//}
+	//if sortIsSome {
+	//	params.Add("sort", C.GoString(sort.value))
+	//}
+	//if symbolIsSome {
+	//	params.Add("symbol", C.GoString(symbol.value))
+	//}
+	//if auxIsSome {
+	//	params.Add("aux", C.GoString(aux.value))
+	//}
+	//// 将查询参数添加到 URL 查询字符串中
+	//u.RawQuery = params.Encode()
+	//
+	//req, err1 := http.NewRequest("GET", u.String(), nil)
+	//if err1 != nil {
+	//	errStr := "Failed to create request"
+	//	fmt.Println("go print: ", errStr)
+	//
+	//	return
+	//}
+	//
+	//req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	//req.Header.Set("Accept", "application/json")
+	////req.Header.Set("Accept-Encoding", "deflate, gzip")
+	//
+	//client := &http.Client{}
+	//response, err2 := client.Do(req)
+	//if err2 != nil {
+	//	errStr := "Failed to send request"
+	//	fmt.Println("go print: ", errStr)
+	//
+	//	return
+	//}
+	//
+	//defer response.Body.Close()
+	//var respBody ListingsLatestResp
+	//
+	//err = json.NewDecoder(response.Body).Decode(&respBody)
+	//if err != nil {
+	//	errStr := "Failed to decode response"
+	//	fmt.Println("go print: ", errStr)
+	//
+	//	return
+	//}
+	////fmt.Println(respBody)
+	//
+	//if response.StatusCode != 200 {
+	//	fmt.Println("go print: ", "response.StatusCode != 200")
+	//
+	//	return
+	//}
+	//
+	//fmt.Println(respBody)
+}
+
 func main() {
-	//query_id_map("", 1, 5, "", "", "")
-
-	// res := query_quotes(&C.OptionalStr{
-	// 	is_some: C.bool(true),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// }, &C.OptionalStr{
-
-	// 	is_some: C.bool(false),
-	// 	value:   C.CString("1,2"),
-	// })
-
-	// priceArrPtr := (*[1 << 30]C.PriceArr)(unsafe.Pointer(res.quotes.prices))
-	// for i := 0; i < int(res.quotes.len); i++ {
-	// 	currencyArrPtr := (*[1 << 30]C.double)(unsafe.Pointer(priceArrPtr[i].currencies))
-	// 	for j := 0; j < int(priceArrPtr[i].len); j++  {
-	// 		fmt.Println(currencyArrPtr[j])
-	// 	}
-	// }
-
+	//query_listings_latest()
 }

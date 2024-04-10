@@ -68,3 +68,25 @@ type IdMapResp struct {
 	Data   []IdMapData `json:"data"`
 	Status StatusResp  `json:"status"`
 }
+
+type ListingsLatestData struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Symbol string `json:"symbol"`
+	Slug   string `json:"slug"`
+	//NumMarketPairs    int       `json:"num_market_pairs"`
+	//CirculatingSupply float64   `json:"circulating_supply"`
+	//TotalSupply       float64   `json:"total_supply"`
+	//MaxSupply         float64   `json:"max_supply"`
+	//InfiniteSupply    bool      `json:"infinite_supply"`
+	//LastUpdated       time.Time `json:"last_updated"`
+	//DateAdded         time.Time `json:"date_added"`
+	//Tags              []string  `json:"tags"`
+	//Platform          *Platform `json:"platform"`
+	Quote map[string]Quote `json:"quote"`
+}
+
+type ListingsLatestResp struct {
+	Data   []ListingsLatestData `json:"data"`
+	Status StatusResp           `json:"status"`
+}
