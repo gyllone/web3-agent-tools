@@ -1,0 +1,209 @@
+[{
+  "name": "get_blockbeats_news",
+  "description": "query block beats news",
+  "args_schema": {
+    "properties": {
+      "date": {
+        "description": "news date in format %Y-%m-%d, like 2023-01-01",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "string",
+        "items": null,
+        "additionalProperties": null
+      },
+      "limit": {
+        "description": "limitation of size",
+        "default": 1,
+        "ref": null,
+        "allOf": null,
+        "type": "integer",
+        "items": null,
+        "additionalProperties": null
+      }
+    },
+    "required": null,
+    "definitions": null
+  },
+  "result_schema": {
+    "properties": {
+      "success": {
+        "description": "if the request is success",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "boolean",
+        "items": null,
+        "additionalProperties": null
+      },
+      "items": {
+        "description": "list of news",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "array",
+        "items": {
+          "description": null,
+          "default": null,
+          "ref": "#/definitions/NewsItem",
+          "allOf": null,
+          "type": null,
+          "items": null,
+          "additionalProperties": null
+        },
+        "additionalProperties": null
+      }
+    },
+    "required": [
+      "success",
+      "items"
+    ],
+    "definitions": {
+      "NewsItem": {
+        "properties": {
+          "title": {
+            "description": "title of news",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "string",
+            "items": null,
+            "additionalProperties": null
+          },
+          "content": {
+            "description": "content of news",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "string",
+            "items": null,
+            "additionalProperties": null
+          },
+          "unixtime": {
+            "description": "time of news in unix timestamp",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "integer",
+            "items": null,
+            "additionalProperties": null
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "unixtime"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*querying blockbeats flash news*\n"
+  }
+},
+  {
+  "name": "get_panews",
+  "description": "query panews flash news",
+  "args_schema": {
+    "properties": {
+      "date": {
+        "description": "news date in format %Y-%m-%d, like 2023-01-01",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "string",
+        "items": null,
+        "additionalProperties": null
+      },
+      "limit": {
+        "description": "limitation of size",
+        "default": 1,
+        "ref": null,
+        "allOf": null,
+        "type": "integer",
+        "items": null,
+        "additionalProperties": null
+      }
+    },
+    "required": null,
+    "definitions": null
+  },
+  "result_schema": {
+    "properties": {
+      "success": {
+        "description": "if the request is success",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "boolean",
+        "items": null,
+        "additionalProperties": null
+      },
+      "items": {
+        "description": "list of news",
+        "default": null,
+        "ref": null,
+        "allOf": null,
+        "type": "array",
+        "items": {
+          "description": null,
+          "default": null,
+          "ref": "#/definitions/NewsItem",
+          "allOf": null,
+          "type": null,
+          "items": null,
+          "additionalProperties": null
+        },
+        "additionalProperties": null
+      }
+    },
+    "required": [
+      "success",
+      "items"
+    ],
+    "definitions": {
+      "NewsItem": {
+        "properties": {
+          "title": {
+            "description": "title of news",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "string",
+            "items": null,
+            "additionalProperties": null
+          },
+          "content": {
+            "description": "content of news",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "string",
+            "items": null,
+            "additionalProperties": null
+          },
+          "unixtime": {
+            "description": "time of news in unix timestamp",
+            "default": null,
+            "ref": null,
+            "allOf": null,
+            "type": "integer",
+            "items": null,
+            "additionalProperties": null
+          }
+        },
+        "required": [
+          "title",
+          "content",
+          "unixtime"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*querying panews flash news*\n"
+  }
+}
+]

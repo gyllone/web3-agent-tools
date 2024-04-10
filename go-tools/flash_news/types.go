@@ -1,7 +1,6 @@
 package main
 
-// BlockBeats types
-// BB_Response 结构体对应整个 JSON 对象
+// Response 结构体对应整个 JSON 对象
 type BB_Response struct {
 	Code int     `json:"code"`
 	Msg  string  `json:"msg"`
@@ -43,11 +42,10 @@ type BB_Item struct {
 	CollectionStatus int      `json:"collection_status"`
 }
 
-// PANews types
 type PA_Response struct {
 	Errno int     `json:"errno"`
 	Msg   string  `json:"msg"`
-	Data  BB_Data `json:"data"`
+	Data  PA_Data `json:"data"`
 }
 
 type PA_Data struct {
@@ -64,18 +62,18 @@ type PA_FlashNews struct {
 }
 
 type PA_News struct {
-	ID          string        `json:"id"`
-	Type        int           `json:"type"`
-	PublishTime int64         `json:"publishTime"`
-	Img         string        `json:"img"`
-	Title       string        `json:"title"`
-	Desc        string        `json:"desc"`
-	Readnum     int           `json:"readnum"`
-	Tags        []string      `json:"tags"` // 注意这里，原始JSON中"tags"是null，但通常我们会定义为字符串数组
-	Author      PA_NewsAuthor `json:"author"`
+	ID          string    `json:"id"`
+	Type        int       `json:"type"`
+	PublishTime int64     `json:"publishTime"`
+	Img         string    `json:"img"`
+	Title       string    `json:"title"`
+	Desc        string    `json:"desc"`
+	Readnum     int       `json:"readnum"`
+	Tags        []string  `json:"tags"` // 注意这里，原始JSON中"tags"是null，但通常我们会定义为字符串数组
+	Author      PA_Author `json:"author"`
 }
 
-type PA_NewsAuthor struct {
+type PA_Author struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Img    string `json:"img"`
@@ -84,7 +82,7 @@ type PA_NewsAuthor struct {
 }
 
 type Custom_FlashNewsItem struct {
-	ArticleID int
+	ArticleID string
 	Title     string
 	Content   string
 	AddTime   int
