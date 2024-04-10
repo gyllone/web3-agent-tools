@@ -21,56 +21,8 @@ typedef struct { const char *p; ptrdiff_t n; } _GoString_;
 
 #line 3 "main.go"
 
-#include <stdlib.h>
-#include <stdbool.h>
 
-typedef struct {
-	bool is_some;
-	char* value;
-} OptionalStr;
-
-typedef struct {
-	bool is_some;
-	long long value;
-} OptionalInt;
-
-typedef struct {
-	bool is_some;
-	bool value;
-} OptionalBool;
-
-typedef struct {
-	size_t len;
-	double* currencies;
-} PriceArr;
-
-typedef struct {
-	size_t len;
-	PriceArr* prices;
-} QuoteArr;
-
-typedef struct {
-	bool is_fail;
-	char* error_message;
-	QuoteArr quotes;
-} QuoteResult;
-
-typedef struct {
-	size_t len;
-	char** keys;
-	char** values;
-} IdMap;
-
-typedef struct {
-	size_t len;
-	IdMap* id_maps;
-} IdMapArr;
-
-typedef struct {
-	bool is_fail;
-	char* error_message;
-	IdMapArr id_maps;
-} IdMapResult;
+#include <cryptocurrency.h>
 
 #line 1 "cgo-generated-wrapper"
 
@@ -129,11 +81,11 @@ extern "C" {
 #endif
 
 
-// func query_quotes(ids C.OptionalStr, slug C.OptionalStr, symbol C.OptionalStr, convert C.OptionalStr, convert_id C.OptionalStr, aux C.OptionalStr, skip_invalid C.OptionalBool) C.QuoteResult {
+// TODO: 使用symbol参数请求的话，返回格式与id和slug不统一，暂不支持
 //
-extern __declspec(dllexport) QuoteResult query_quotes(OptionalStr ids, OptionalStr slug, OptionalStr convert, OptionalStr convert_id, OptionalStr aux, OptionalBool skip_invalid);
+extern __declspec(dllexport) QuoteResult query_quotes(Optional_String ids, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
 extern __declspec(dllexport) void query_quotes_release(QuoteResult result);
-extern __declspec(dllexport) IdMapResult query_id_map(OptionalStr listing_status, OptionalInt start, OptionalInt limit, OptionalStr sort, OptionalStr symbol, OptionalStr aux);
+extern __declspec(dllexport) IdMapResult query_id_map(Optional_String listing_status, Optional_Int start, Optional_Int limit, Optional_String sort, Optional_String symbol, Optional_String aux);
 extern __declspec(dllexport) void query_id_map_release(IdMapResult result);
 
 #ifdef __cplusplus

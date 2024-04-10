@@ -1,1 +1,1 @@
-package odaily
+package main
