@@ -153,3 +153,5 @@ cython_debug/
 .idea
 target
 
+go-tools/outputs
+
