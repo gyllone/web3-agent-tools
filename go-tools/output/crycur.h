@@ -85,8 +85,13 @@ extern "C" {
 //
 extern __declspec(dllexport) QuoteResult query_quotes(Optional_String ids, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
 extern __declspec(dllexport) void query_quotes_release(QuoteResult result);
-extern __declspec(dllexport) IdMapResult query_id_map(Optional_String listing_status, Optional_Int start, Optional_Int limit, Optional_String sort, Optional_String symbol, Optional_String aux);
+extern __declspec(dllexport) IdMapResult query_id_map(Optional_String listing_status, Optional_String sort, Optional_String symbol, Optional_String aux, Optional_Int start, Optional_Int limit);
 extern __declspec(dllexport) void query_id_map_release(IdMapResult result);
+
+// TODO: symbol请求与id和slug格式不符，暂未实现
+//
+extern __declspec(dllexport) MetadataResult query_metadata(Optional_String id, Optional_String slug, Optional_String address, Optional_String aux, Optional_Bool skip_invalid);
+extern __declspec(dllexport) void query_metadata_release(MetadataResult result);
 
 #ifdef __cplusplus
 }

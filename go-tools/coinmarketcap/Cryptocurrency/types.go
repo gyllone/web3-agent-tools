@@ -1,7 +1,17 @@
 package main
 
+import "time"
+
 type StatusResp struct {
 	ErrorMessage string `json:"error_message"`
+}
+
+type Platform struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Symbol       string `json:"symbol"`
+	Slug         string `json:"slug"`
+	TokenAddress string `json:"token_address,contract_address"`
 }
 
 type Quote struct {
@@ -44,17 +54,9 @@ type QuoteResp struct {
 	Status StatusResp           `json:"status"`
 }
 
-//type Platform struct {
-//	ID           int    `json:"id"`
-//	Name         string `json:"name"`
-//	Symbol       string `json:"symbol"`
-//	Slug         string `json:"slug"`
-//	TokenAddress string `json:"token_address"`
-//}
-
 type IdMapData struct {
-	ID int `json:"id"`
-	//Rank                int       `json:"rank"`
+	ID     int    `json:"id"`
+	Rank   int    `json:"rank"`
 	Name   string `json:"name"`
 	Symbol string `json:"symbol"`
 	Slug   string `json:"slug"`
@@ -69,21 +71,57 @@ type IdMapResp struct {
 	Status StatusResp  `json:"status"`
 }
 
+type Metadata struct {
+	ID                            int       `json:"id"`
+	Name                          string    `json:"name"`
+	Symbol                        string    `json:"symbol"`
+	Slug                          string    `json:"slug"`
+	Category                      string    `json:"category"`
+	Description                   string    `json:"description"`
+	DateAdded                     string    `json:"date_added"`
+	DateLaunched                  string    `json:"date_launched"`
+	Notice                        string    `json:"notice"`
+	Tags                          []string  `json:"tags"`
+	Platform                      *Platform `json:"platform"`
+	SelfReportedCirculatingSupply *float64  `json:"self_reported_circulating_supply"`
+	SelfReportedMarketCap         *float64  `json:"self_reported_market_cap"`
+	SelfReportedTags              []string  `json:"self_reported_tags"`
+	InfiniteSupply                *bool     `json:"infinite_supply"`
+	URLs                          URLs      `json:"urls"`
+}
+
+type URLs struct {
+	Website      []string `json:"website"`
+	TechnicalDoc []string `json:"technical_doc"`
+	Explorer     []string `json:"explorer"`
+	SourceCode   []string `json:"source_code"`
+	MessageBoard []string `json:"message_board"`
+	Chat         []string `json:"chat"`
+	Announcement []string `json:"announcement"`
+	Reddit       []string `json:"reddit"`
+	Twitter      []string `json:"twitter"`
+}
+
+type MetadataResp struct {
+	Data   map[string]Metadata `json:"data"`
+	Status StatusResp          `json:"status"`
+}
+
 type ListingsLatestData struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Symbol string `json:"symbol"`
-	Slug   string `json:"slug"`
-	//NumMarketPairs    int       `json:"num_market_pairs"`
-	//CirculatingSupply float64   `json:"circulating_supply"`
-	//TotalSupply       float64   `json:"total_supply"`
-	//MaxSupply         float64   `json:"max_supply"`
-	//InfiniteSupply    bool      `json:"infinite_supply"`
-	//LastUpdated       time.Time `json:"last_updated"`
-	//DateAdded         time.Time `json:"date_added"`
-	//Tags              []string  `json:"tags"`
-	//Platform          *Platform `json:"platform"`
-	Quote map[string]Quote `json:"quote"`
+	ID                int              `json:"id"`
+	Name              string           `json:"name"`
+	Symbol            string           `json:"symbol"`
+	Slug              string           `json:"slug"`
+	NumMarketPairs    int              `json:"num_market_pairs"`
+	CirculatingSupply float64          `json:"circulating_supply"`
+	TotalSupply       float64          `json:"total_supply"`
+	MaxSupply         float64          `json:"max_supply"`
+	InfiniteSupply    bool             `json:"infinite_supply"`
+	LastUpdated       time.Time        `json:"last_updated"`
+	DateAdded         time.Time        `json:"date_added"`
+	Tags              []string         `json:"tags"`
+	Platform          *Platform        `json:"platform"`
+	Quote             map[string]Quote `json:"quote"`
 }
 
 type ListingsLatestResp struct {

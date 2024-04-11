@@ -33,4 +33,13 @@ typedef struct {
 
 void release_IdMapResult(IdMapResult result);
 
+typedef struct {
+    Bool is_fail;
+    String error_message;
+    List_Dict_String metas;
+} MetadataResult;
+
+void release_MetadataResult(MetadataResult result);
+
+
 #endif

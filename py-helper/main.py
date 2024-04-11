@@ -1,6 +1,8 @@
 import json
-from typing import Optional, List, Dict
+from typing import Optional
+
 from pydantic import BaseModel, Field
+
 from libs.schema import Schema
 from libs.tool import ToolSchema
 
@@ -54,33 +56,44 @@ class QuoteOutput(Result):
     quotes: list[list[float]] = Field(description="quotes")
 
 
+class MetaInput(BaseModel):
+    id: Optional[str]
+    slug: Optional[str]
+    address: Optional[str]
+    aux: Optional[str]
+    skip_invalid: Optional[bool]
+
+
+class MetaOutput(Result):
+    metas: list[dict[str, str]] = Field(description="metas")
+
+
 if __name__ == '__main__':
     schema = ToolSchema(
-        name="query_quotes",
+        name="query_metadata",
         description="This is a test",
-        args_schema=Schema.from_model_type(QuoteInput),
-        result_schema=Schema.from_model_type(QuoteOutput),
+        args_schema=Schema.from_model_type(MetaInput),
+        result_schema=Schema.from_model_type(MetaOutput),
     )
 
     print("\n===============Running Tool===============\n")
 
+    args = MetaInput(slug="bitcoin,ethereum")
+    resp = schema.run_tool("../go-tools/output/crycur.so", args.dict(by_alias=True))
 
-    args = QuoteInput(ids="1,2", convert="USD", skip_invalid=False)
-    resp = schema.run_tool("../go-tools/output/idmaps.so", args.dict(by_alias=True))
-
-#     args = Input(
-#         foo="foo",
-#         bar=[
-#             {"x": 1, "y": 2},
-#             {"x": 3, "y": 4},
-#         ],
-#         baz=Param(
-#             foo=True,
-#             bar=[1.0, 2.0],
-#             baz={"x": 1, "y": 2},
-#         ),
-#     )
-#     resp = schema.run_tool("../go-tools/outputs/test.so", args.dict(by_alias=True))
+    #     args = Input(
+    #         foo="foo",
+    #         bar=[
+    #             {"x": 1, "y": 2},
+    #             {"x": 3, "y": 4},
+    #         ],
+    #         baz=Param(
+    #             foo=True,
+    #             bar=[1.0, 2.0],
+    #             baz={"x": 1, "y": 2},
+    #         ),
+    #     )
+    #     resp = schema.run_tool("../go-tools/outputs/test.so", args.dict(by_alias=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))
