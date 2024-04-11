@@ -1,4 +1,5 @@
-[{
+[
+  {
   "name": "get_blockbeats_news",
   "description": "query block beats news",
   "args_schema": {
@@ -101,7 +102,7 @@
   "metadata": {
     "annotation": "*querying blockbeats flash news*\n"
   }
-},
+  },
   {
   "name": "get_panews",
   "description": "query panews flash news",
