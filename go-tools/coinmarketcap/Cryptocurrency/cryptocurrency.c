@@ -19,7 +19,7 @@ void release_QuoteResult(QuoteResult result) {
     release_Bool(result.is_fail);
     release_String(result.error_message);
     if (result.is_fail== false) {
-        release_List_List_Float(result.quotes);
+        release_List_List_Float(result.data);
     }
 }
 
@@ -27,7 +27,7 @@ void release_IdMapResult(IdMapResult result) {
     release_Bool(result.is_fail);
     release_String(result.error_message);
     if (result.is_fail == false) {
-        release_List_Dict_String(result.id_maps);
+        release_List_Dict_String(result.data);
     }
 }
 
@@ -35,6 +35,6 @@ void release_MetadataResult(MetadataResult result) {
     release_Bool(result.is_fail);
     release_String(result.error_message);
     if (result.is_fail == false) {
-        release_List_Dict_String(result.metas);
+        release_List_Dict_String(result.data);
     }
 }

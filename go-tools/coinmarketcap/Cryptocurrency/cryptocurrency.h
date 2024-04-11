@@ -20,7 +20,7 @@ DEFINE_LIST(Dict_String)
 typedef struct {
     Bool is_fail;
     String error_message;
-    List_List_Float quotes;
+    List_List_Float data;
 } QuoteResult;
 
 void release_QuoteResult(QuoteResult result);
@@ -28,7 +28,7 @@ void release_QuoteResult(QuoteResult result);
 typedef struct {
     Bool is_fail;
     String error_message;
-    List_Dict_String id_maps;
+    List_Dict_String data;
 } IdMapResult;
 
 void release_IdMapResult(IdMapResult result);
@@ -36,7 +36,7 @@ void release_IdMapResult(IdMapResult result);
 typedef struct {
     Bool is_fail;
     String error_message;
-    List_Dict_String metas;
+    List_Dict_String data;
 } MetadataResult;
 
 void release_MetadataResult(MetadataResult result);

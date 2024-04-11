@@ -83,7 +83,7 @@ extern "C" {
 
 // TODO: 使用symbol参数请求的话，返回格式与id和slug不统一，暂不支持
 //
-extern __declspec(dllexport) QuoteResult query_quotes(Optional_String ids, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
+extern __declspec(dllexport) QuoteResult query_quotes(Optional_String id, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
 extern __declspec(dllexport) void query_quotes_release(QuoteResult result);
 extern __declspec(dllexport) IdMapResult query_id_map(Optional_String listing_status, Optional_String sort, Optional_String symbol, Optional_String aux, Optional_Int start, Optional_Int limit);
 extern __declspec(dllexport) void query_id_map_release(IdMapResult result);

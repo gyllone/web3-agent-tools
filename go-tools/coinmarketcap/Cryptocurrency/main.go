@@ -22,7 +22,7 @@ import (
 // TODO: 使用symbol参数请求的话，返回格式与id和slug不统一，暂不支持
 //
 //export query_quotes
-func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_invalid C.Optional_Bool) (result C.QuoteResult) {
+func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_invalid C.Optional_Bool) (result C.QuoteResult) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -33,18 +33,18 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 			result = C.QuoteResult{
 				is_fail:       C.bool(true),
 				error_message: C.CString("go panic"),
-				quotes:        C.new_List_List_Float(0),
+				data:          C.new_List_List_Float(0),
 			}
 		}
 	}()
-	idsIsSome := bool(ids.is_some)
+	idsIsSome := bool(id.is_some)
 	slugIsSome := bool(slug.is_some)
 	if !(idsIsSome || slugIsSome) {
-		errStr := "ids or slug must have at least one"
+		errStr := "id or slug must have at least one"
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 	convertIsSome := bool(convert.is_some)
@@ -58,7 +58,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -67,7 +67,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 	convertLen := 1
 
 	if idsIsSome {
-		idStr := C.GoString(ids.value)
+		idStr := C.GoString(id.value)
 		params.Add("id", idStr)
 		quoteLen = len(strings.Split(idStr, ","))
 	}
@@ -104,7 +104,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -119,7 +119,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -131,7 +131,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -143,7 +143,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -151,7 +151,7 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		return C.QuoteResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(respBody.Status.ErrorMessage),
-			quotes:        C.new_List_List_Float(0),
+			data:          C.new_List_List_Float(0),
 		}
 	}
 
@@ -159,8 +159,8 @@ func query_quotes(ids, slug, convert, convert_id, aux C.Optional_String, skip_in
 		is_fail:       C.bool(false),
 		error_message: C.CString(""),
 	}
-	quotesResult.quotes = C.new_List_List_Float(C.size_t(quoteLen))
-	priceArrPtr := (*[1 << 30]C.List_Float)(unsafe.Pointer(quotesResult.quotes.values))[:quoteLen:quoteLen]
+	quotesResult.data = C.new_List_List_Float(C.size_t(quoteLen))
+	priceArrPtr := (*[1 << 30]C.List_Float)(unsafe.Pointer(quotesResult.data.values))[:quoteLen:quoteLen]
 	for i := 0; i < quoteLen; i++ {
 		priceArrPtr[i] = C.new_List_Float(C.size_t(convertLen))
 	}
@@ -195,7 +195,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 			result = C.IdMapResult{
 				is_fail:       C.bool(true),
 				error_message: C.CString("go panic"),
-				id_maps:       C.new_List_Dict_String(0),
+				data:          C.new_List_Dict_String(0),
 			}
 		}
 	}()
@@ -205,7 +205,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -244,7 +244,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -259,7 +259,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -271,7 +271,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -283,7 +283,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -291,7 +291,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.IdMapResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(respBody.Status.ErrorMessage),
-			id_maps:       C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -301,9 +301,9 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 	idMapResult := C.IdMapResult{
 		is_fail:       C.bool(false),
 		error_message: C.CString(""),
-		id_maps:       C.new_List_Dict_String(C.size_t(dataLen)),
+		data:          C.new_List_Dict_String(C.size_t(dataLen)),
 	}
-	idMapsArr := (*[1 << 30]C.Dict_String)(unsafe.Pointer(idMapResult.id_maps.values))[:dataLen:dataLen]
+	idMapsArr := (*[1 << 30]C.Dict_String)(unsafe.Pointer(idMapResult.data.values))[:dataLen:dataLen]
 
 	for idx, v := range data {
 		keys := []string{"id", "name", "symbol", "slug"}
@@ -340,7 +340,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 			result = C.MetadataResult{
 				is_fail:       C.bool(true),
 				error_message: C.CString("go panic"),
-				metas:         C.new_List_Dict_String(0),
+				data:          C.new_List_Dict_String(0),
 			}
 		}
 	}()
@@ -355,7 +355,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -365,7 +365,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -393,7 +393,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -408,7 +408,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -421,7 +421,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -433,7 +433,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(errStr),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
@@ -441,17 +441,17 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.MetadataResult{
 			is_fail:       C.bool(true),
 			error_message: C.CString(respBody.Status.ErrorMessage),
-			metas:         C.new_List_Dict_String(0),
+			data:          C.new_List_Dict_String(0),
 		}
 	}
 
 	result = C.MetadataResult{
 		is_fail:       C.bool(false),
 		error_message: C.CString(""),
-		metas:         C.new_List_Dict_String(C.size_t(len(respBody.Data))),
+		data:          C.new_List_Dict_String(C.size_t(len(respBody.Data))),
 	}
 
-	metaArr := (*[1 << 30]C.Dict_String)(unsafe.Pointer(result.metas.values))[:result.metas.len:result.metas.len]
+	metaArr := (*[1 << 30]C.Dict_String)(unsafe.Pointer(result.data.values))[:result.data.len:result.data.len]
 	idxMeta := 0
 	for _, meta := range respBody.Data {
 		keys, values := parseMetadata(meta)
