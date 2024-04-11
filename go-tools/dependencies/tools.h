@@ -103,4 +103,33 @@ void release_Dict_##type(Dict_##type dict) { \
     free(dict.values); \
 }
 
+#define DEFINE_RESULT(type) \
+typedef struct { \
+    Bool status; \
+    String error; \
+    type value; \
+} Result_##type; \
+extern Result_##type ok_##type(type value); \
+extern Result_##type err_##type(String error); \
+extern void release_Result_##type(Result_##type result);
+
+#define IMPL_RESULT(type) \
+Result_##type ok_##type(type value) { \
+    Result_##type result; \
+    result.status = true; \
+    result.error = ""; \
+    result.value = value; \
+    return result; \
+} \
+Result_##type err_##type(String error) { \
+    Result_##type result; \
+    result.status = false; \
+    result.error = error; \
+    return result; \
+} \
+void release_Result_##type(Result_##type result) { \
+    free(result.error); \
+    release_##type(result.value); \
+}
+
 #endif
