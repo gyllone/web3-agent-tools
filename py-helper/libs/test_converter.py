@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 from pydantic import BaseModel, Field
 
-from libs.schema import Schema
+from libs.schema import ParamSchema
 
 
 class Baz(BaseModel):
@@ -23,7 +23,7 @@ class Foo(BaseModel):
 
 if __name__ == "__main__":
     raw_schema = Foo.schema()
-    schema = Schema.parse_obj(raw_schema)
+    schema = ParamSchema.parse_obj(raw_schema)
     print(schema.json(indent=2, exclude_none=True))
 
     # converter = ValueConverter(schema)

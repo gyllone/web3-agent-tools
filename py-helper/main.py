@@ -3,8 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from libs.schema import Schema
-from libs.tool import ToolSchema
+from libs.tool import ToolSchema, ParamSchema
 
 
 class Param(BaseModel):
@@ -104,10 +103,12 @@ if __name__ == '__main__':
         # name="query_quotes",
         name="query_listings",
         description="This is a test",
-        # args_schema=Schema.from_model_type(QuoteInput),
-        # result_schema=Schema.from_model_type(QuoteOutput),
-        args_schema=Schema.from_model_type(ListingInput),
-        result_schema=Schema.from_model_type(ListingOutput),
+        # args_schema=ParamSchema.from_model_type(QuoteInput),
+        # result_schema=ParamSchema.from_model_type(QuoteOutput),
+        # args_schema=ParamSchema.from_model_type(ListingInput),
+        # result_schema=ParamSchema.from_model_type(ListingOutput),
+        args_schema=ParamSchema.from_model_type(Input),
+        result_schema=ParamSchema.from_model_type(Output),
     )
 
     print("\n===============Running Tool===============\n")
