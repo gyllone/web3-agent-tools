@@ -1,20 +1,13 @@
-#include <tools.h>
 #include <news.h>
 
-IMPL_LIST(NewsItem)
+IMPL_OPTIONAL(String);
+IMPL_OPTIONAL(Int);
 
 void release_NewsItem(NewsItem item) {
-	release_String(item.title);
-	release_String(item.content);
-	release_Int(item.unixtime);
+    free(item.title);
+    free(item.content);
+    free(item.timestamp);
 }
 
-void release_NewsResult(NewsResult res) {
-	release_List_NewsItem(res.items);
-	release_Bool(res.success);
-}
-
-void release_NewsResultJson(NewsResultJson res) {
-	release_String(res.json_string);
-	release_Bool(res.success);
-}
+IMPL_LIST(NewsItem)
+IMPL_RESULT(List_NewsItem)

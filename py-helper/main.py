@@ -3,7 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from libs.tool import ToolSchema
-from libs.schema import Schema
+from libs.schema import ParamSchema
 
 
 class Param(BaseModel):
@@ -28,8 +28,8 @@ if __name__ == '__main__':
     schema = ToolSchema(
         name="test",
         description="This is a test",
-        args_schema=Schema.from_model_type(Input),
-        result_schema=Schema.from_model_type(Output),
+        args_schema=ParamSchema.from_model_type(Input),
+        result_schema=ParamSchema.from_model_type(Output),
     )
 
     print("\n===============Running Tool===============\n")

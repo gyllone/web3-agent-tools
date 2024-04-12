@@ -16,7 +16,7 @@ func __get_blockbeats_news_by_date(date string, limit int) ([]*Custom_FlashNewsI
 	if err != nil {
 		return nil, err
 	}
-	startTs, endTs := int(t.Unix()), int(t.Unix())+86400
+	startTs, endTs := t.Unix(), t.Unix()+86400
 	end := false
 	items := make([]*BB_Item, 0, 0)
 	curTs := endTs
@@ -56,7 +56,7 @@ func __get_blockbeats_news_by_date(date string, limit int) ([]*Custom_FlashNewsI
 }
 
 // page参数没有用, end_time开集合，取时间<end_time的条数
-func request_blockbeats(end_time int) (*BB_Response, error) {
+func request_blockbeats(end_time int64) (*BB_Response, error) {
 	url := fmt.Sprintf("https://api.theblockbeats.info/v1/newsflash/list?page=1&limit=50&ios=-2&end_time=%d&detective=-2", end_time)
 	fmt.Printf("request: %s\n", url)
 	method := "GET"

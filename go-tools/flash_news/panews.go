@@ -45,7 +45,7 @@ func __get_panews_by_date(date string, limit int) ([]*Custom_FlashNewsItem, erro
 			ArticleID: item.ID,
 			Title:     item.Title,
 			Content:   item.Desc,
-			AddTime:   int(item.PublishTime),
+			AddTime:   item.PublishTime,
 			Url:       "",
 		})
 	}

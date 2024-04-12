@@ -3,7 +3,7 @@ import platform
 from typing import Any, Mapping, Optional
 from pydantic import BaseModel
 
-from libs.schema import Schema
+from libs.schema import ParamSchema
 from libs.converter import ValueConverter
 
 
@@ -14,9 +14,9 @@ class ToolSchema(BaseModel):
     """The unique name of the tool that clearly communicates its purpose."""
     description: str
     """Used to tell the model how/when/why to use the tool."""
-    args_schema: Optional[Schema] = None
+    args_schema: Optional[ParamSchema] = None
     """Pydantic model class to validate and parse the tool's input arguments."""
-    result_schema: Optional[Schema] = None
+    result_schema: Optional[ParamSchema] = None
     """Pydantic model class to validate and parse the tool's output."""
     return_direct: bool = False
     """Whether to return the tool's output directly. Setting this to True means that after the tool is called, the 
@@ -57,7 +57,8 @@ class ToolSchema(BaseModel):
 
         try:
             if result_converter and c_res:
-                return result_converter.c_struct_to_py_object(c_res)
+                py_res = result_converter.c_struct_to_py_object(c_res)
+                return py_res
             else:
                 return None
         finally:

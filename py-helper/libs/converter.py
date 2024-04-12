@@ -1,7 +1,7 @@
 from typing import Type, Any, Optional, Tuple, Mapping
 from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, POINTER, cast
 
-from libs.schema import Object, Property, Schema
+from .schema import Object, Property, ParamSchema
 
 
 CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure]
@@ -10,10 +10,10 @@ CValue = c_bool | c_longlong | c_double | c_char_p | Structure
 
 
 class TypeConverter(object):
-    schema: Schema
+    schema: ParamSchema
     c_types_cache: dict[str, Type[Structure]] = {}
 
-    def __init__(self, schema: Schema):
+    def __init__(self, schema: ParamSchema):
         self.schema = schema
 
     def get_arg_types(self) -> list[CType]:
@@ -48,29 +48,27 @@ class TypeConverter(object):
             c_fields = self._get_c_fields(obj)
             return self._wrap_struct(ref_type, c_fields)
 
-        if prop.type:
-            if prop.type == "string":
-                return c_char_p
-            elif prop.type == "number":
-                return c_double
-            elif prop.type == "integer":
-                return c_longlong
-            elif prop.type == "boolean":
-                return c_bool
-            elif prop.type == "array":
-                if not prop.items:
-                    raise TypeError("Must define item of list")
-                inner_c_type = self._get_c_type(prop.items)
-                return self._wrap_list(inner_c_type)
-            elif prop.type == "object":
-                if not prop.additionalProperties:
-                    raise TypeError("Must define additional property of dict")
-                inner_c_type = self._get_c_type(prop.additionalProperties)
-                return self._wrap_dict(inner_c_type)
-            else:
-                raise TypeError(f"Unexpected type {prop.type}")
-        else:
+        py_type = prop.parse_type()
+        if not py_type:
             raise TypeError("Must define type")
+        if py_type is str:
+            return c_char_p
+        elif py_type is int:
+            return c_longlong
+        elif py_type is float:
+            return c_double
+        elif py_type is bool:
+            return c_bool
+        elif py_type is list:
+            if not prop.items:
+                raise TypeError("Must define item of list")
+            inner_c_type = self._get_c_type(prop.items)
+            return self._wrap_list(inner_c_type)
+        elif py_type is dict:
+            if not prop.additionalProperties:
+                raise TypeError("Must define additional property of dict")
+            inner_c_type = self._get_c_type(prop.additionalProperties)
+            return self._wrap_dict(inner_c_type)
 
     def _wrap_struct(self, name: str, c_fields: list[Tuple[str, CType]]) -> Type[Structure]:
         name = f"c_structure_{name}"
@@ -163,23 +161,21 @@ class ValueConverter(TypeConverter):
                 raise TypeError(f"Ref type {ref_type} not found in objects")
             return self._c_struct_to_py_object(obj, c_value)
 
-        if prop.type:
-            if prop.type == "string":
-                return str(c_value.decode("utf-8"))
-            elif prop.type in ("number", "integer", "boolean"):
-                return c_value
-            elif prop.type == "array":
-                if not prop.items:
-                    raise TypeError("Must define item of list")
-                return self._c_list_to_py_list(prop.items, c_value)
-            elif prop.type == "object":
-                if not prop.additionalProperties:
-                    raise TypeError("Must define additional property of dict")
-                return self._c_dict_to_py_dict(prop.additionalProperties, c_value)
-            else:
-                raise TypeError(f"Unexpected type {prop.type}")
-        else:
+        py_type = prop.parse_type()
+        if not py_type:
             raise TypeError("Must define type")
+        if py_type is str:
+            return str(c_value.decode("utf-8"))
+        elif py_type in (int, float, bool):
+            return py_type(c_value)
+        elif py_type is list:
+            if not prop.items:
+                raise TypeError("Must define item of list")
+            return self._c_list_to_py_list(prop.items, c_value)
+        elif py_type is dict:
+            if not prop.additionalProperties:
+                raise TypeError("Must define additional property of dict")
+            return self._c_dict_to_py_dict(prop.additionalProperties, c_value)
 
     def _py_value_to_c_value(self, prop: Property, py_value: PyValue) -> CValue:
         if prop.allOf:
@@ -193,27 +189,25 @@ class ValueConverter(TypeConverter):
                 raise TypeError(f"Ref type {ref_type} not found in objects")
             return self._py_object_to_c_struct(ref_type, obj, py_value)
 
-        if prop.type:
-            if prop.type == "string":
-                return c_char_p(py_value.encode("utf-8"))
-            elif prop.type == "number":
-                return c_double(py_value)
-            elif prop.type == "integer":
-                return c_longlong(py_value)
-            elif prop.type == "boolean":
-                return c_bool(py_value)
-            elif prop.type == "array":
-                if not prop.items:
-                    raise TypeError("Must define item of list")
-                return self._py_list_to_c_list(prop.items, py_value)
-            elif prop.type == "object":
-                if not prop.additionalProperties:
-                    raise TypeError("Must define additional property of dict")
-                return self._py_dict_to_c_dict(prop.additionalProperties, py_value)
-            else:
-                raise TypeError(f"Unexpected type {prop.type}")
-        else:
+        py_type = prop.parse_type()
+        if not py_type:
             raise TypeError("Must define type")
+        if py_type is str:
+            return c_char_p(py_value.encode("utf-8"))
+        elif py_type is float:
+            return c_double(py_value)
+        elif py_type is int:
+            return c_longlong(py_value)
+        elif py_type is bool:
+            return c_bool(py_value)
+        elif py_type is list:
+            if not prop.items:
+                raise TypeError("Must define item of list")
+            return self._py_list_to_c_list(prop.items, py_value)
+        elif py_type is dict:
+            if not prop.additionalProperties:
+                raise TypeError("Must define additional property of dict")
+            return self._py_dict_to_c_dict(prop.additionalProperties, py_value)
 
     def _c_struct_to_py_object(self, obj: Object, c_struct: Structure) -> Mapping[str, Any]:
         _object = {}
