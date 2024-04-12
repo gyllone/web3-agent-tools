@@ -1,34 +1,27 @@
 package main
 
-import (
-	"fmt"
-	"io"
-	"net/http"
+func createSpotOrder(req *CreateSpotOrderRequest, auth *HashKeyAuth) (*CreateSpotOrderResponse, error) {
 
-	"github.com/google/go-querystring/query"
-)
+	resp := &CreateSpotOrderResponse{}
+	return resp, request(req, getDeserializeJsonFunc(resp), API_SPOT_ORDER, "POST", auth)
+}
 
-func createSpotOrder(order *SpotOrderRequest, auth *HashKeyAuth) (*SpotOrderResponse, error) {
+func cancelSpotOrder(req *CancelOrderRequest, auth *HashKeyAuth) (*CancelOrderResponse, error) {
+	resp := &CancelOrderResponse{}
+	return resp, request(req, getDeserializeJsonFunc(resp), API_SPOT_ORDER, "DELETE", auth)
+}
 
-	urlValues, err := query.Values(order)
-	if err != nil {
-		return nil, err
-	}
+func queryCurrentSoptOrder(req *QueryOpenOrdersRequest, auth *HashKeyAuth) (QueryOpenOrdersResponse, error) {
+	var arrays QueryOpenOrdersResponse
+	return arrays, request(req, getDeserializeJsonFunc(&arrays), API_SPOT_OPENORDERS, "GET", auth)
+}
 
-	urlString := urlValues.Encode()
-	signature := create_signature(urlString, auth.Secret)
-	url := fmt.Sprintf("%s?%s&signature=%s", API_SPOT_ORDER, urlString, signature)
-	fmt.Printf("createSpotOrder url: %s\n", url)
-	req, _ := http.NewRequest("POST", url, nil)
+func cancelAllSoptOrders(req *CancelAllOpenOrdersRequest, auth *HashKeyAuth) (*CancelAllOpenOrdersReponse, error) {
+	resp := &CancelAllOpenOrdersReponse{}
+	return resp, request(req, getDeserializeJsonFunc(resp), API_SPOT_OPENORDERS, "DELETE", auth)
+}
 
-	req.Header.Add("accept", "application/json")
-	req.Header.Add("X-HK-APIKEY", auth.ApiKey)
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := io.ReadAll(res.Body)
-
-	fmt.Println(string(body))
-
-	return nil, nil
+func cancelMultiSpotOrders(req *CancelMultiOrdersRequest, auth *HashKeyAuth) (*CancelMultiOrdersResponse, error) {
+	resp := &CancelMultiOrdersResponse{}
+	return resp, request(req, getDeserializeJsonFunc(resp), API_SPOT_CANCEL_ORDER_BY_IDS, "DELETE", auth)
 }
