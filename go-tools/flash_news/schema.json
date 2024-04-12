@@ -1,0 +1,128 @@
+[
+  {
+    "name": "get_blockbeats_news",
+    "description": "query block beats news",
+    "args_schema": {
+      "properties": {
+        "date": {
+          "description": "news date in format %Y-%m-%d, like 2023-01-01",
+          "type": "string"
+        },
+        "limit": {
+          "description": "limitation of size",
+          "default": 1,
+          "type": "integer"
+        }
+      }
+    },
+    "result_schema": {
+      "properties": {
+        "success": {
+          "description": "if the request is success",
+          "type": "boolean"
+        },
+        "items": {
+          "description": "list of news",
+          "type": "array",
+          "items": {
+            "ref": "#/definitions/NewsItem"
+          }
+        }
+      },
+      "required": [
+        "success",
+        "items"
+      ],
+      "definitions": {
+        "NewsItem": {
+          "properties": {
+            "title": {
+              "description": "title of news",
+              "type": "string"
+            },
+            "content": {
+              "description": "content of news",
+              "type": "string"
+            },
+            "unixtime": {
+              "description": "time of news in unix timestamp",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "title",
+            "content",
+            "unixtime"
+          ]
+        }
+      }
+    },
+    "return_direct": false,
+    "metadata": {
+      "annotation": "*querying blockbeats flash news*\n"
+    }
+  },
+  {
+    "name": "get_panews",
+    "description": "query from panews",
+    "args_schema": {
+      "properties": {
+        "date": {
+          "description": "news date in format %Y-%m-%d, like 2023-01-01",
+          "type": "string"
+        },
+        "limit": {
+          "description": "limitation of size",
+          "default": 1,
+          "type": "integer"
+        }
+      }
+    },
+    "result_schema": {
+      "properties": {
+        "success": {
+          "description": "if the request is success",
+          "type": "boolean"
+        },
+        "items": {
+          "description": "list of news",
+          "type": "array",
+          "items": {
+            "ref": "#/definitions/NewsItem"
+          }
+        }
+      },
+      "required": [
+        "success",
+        "items"
+      ],
+      "definitions": {
+        "NewsItem": {
+          "properties": {
+            "title": {
+              "description": "title of news",
+              "type": "string"
+            },
+            "content": {
+              "description": "content of news",
+              "type": "string"
+            },
+            "unixtime": {
+              "description": "time of news in unix timestamp",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "title",
+            "content",
+            "unixtime"
+          ]
+        }
+      }
+    },
+    "return_direct": false,
+    "metadata": {
+      "annotation": "*querying from pannews*\n"
+    }
+  }
+]
