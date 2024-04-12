@@ -105,10 +105,10 @@ if __name__ == '__main__':
         description="This is a test",
         # args_schema=ParamSchema.from_model_type(QuoteInput),
         # result_schema=ParamSchema.from_model_type(QuoteOutput),
-        # args_schema=ParamSchema.from_model_type(ListingInput),
-        # result_schema=ParamSchema.from_model_type(ListingOutput),
-        args_schema=ParamSchema.from_model_type(Input),
-        result_schema=ParamSchema.from_model_type(Output),
+        args_schema=ParamSchema.from_model_type(ListingInput),
+        result_schema=ParamSchema.from_model_type(ListingOutput),
+        # args_schema=ParamSchema.from_model_type(Input),
+        # result_schema=ParamSchema.from_model_type(Output),
     )
 
     print("\n===============Running Tool===============\n")

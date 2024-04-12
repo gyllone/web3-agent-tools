@@ -83,10 +83,10 @@ type Metadata struct {
 	Notice                        string    `json:"notice"`
 	Tags                          []string  `json:"tags"`
 	Platform                      *Platform `json:"platform"`
-	SelfReportedCirculatingSupply *float64  `json:"self_reported_circulating_supply"`
-	SelfReportedMarketCap         *float64  `json:"self_reported_market_cap"`
+	SelfReportedCirculatingSupply float64   `json:"self_reported_circulating_supply"`
+	SelfReportedMarketCap         float64   `json:"self_reported_market_cap"`
 	SelfReportedTags              []string  `json:"self_reported_tags"`
-	InfiniteSupply                *bool     `json:"infinite_supply"`
+	InfiniteSupply                bool      `json:"infinite_supply"`
 	URLs                          URLs      `json:"urls"`
 }
 
@@ -120,8 +120,8 @@ type ListingsData struct {
 	InfiniteSupply                bool      `json:"infinite_supply"`
 	LastUpdated                   time.Time `json:"last_updated"`
 	DateAdded                     time.Time `json:"date_added"`
-	SelfReportedCirculatingSupply *float64  `json:"self_reported_circulating_supply"`
-	SelfReportedMarketCap         *float64  `json:"self_reported_market_cap"`
+	SelfReportedCirculatingSupply float64   `json:"self_reported_circulating_supply"`
+	SelfReportedMarketCap         float64   `json:"self_reported_market_cap"`
 	TvlRatio                      float64   `json:"tvl_ratio"`
 	Tags                          []string  `json:"tags"`
 	//Platform                      *Platform        `json:"platform"`

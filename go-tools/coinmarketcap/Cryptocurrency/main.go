@@ -6,9 +6,9 @@ package main
 */
 import "C"
 import (
+	"coinmarketcap/utils"
 	"encoding/json"
 	"fmt"
-	"go-tools/dependencies"
 	"math"
 	"net/http"
 	"net/url"
@@ -124,8 +124,7 @@ func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_inv
 	}
 
 	defer response.Body.Close()
-
-	respBodyDecomp, err3 := dependencies.DecompressResponse(response)
+	respBodyDecomp, err3 := utils.DecompressResponse(response)
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		return C.QuoteResult{
@@ -265,7 +264,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 
 	defer response.Body.Close()
 
-	respBodyDecomp, err3 := dependencies.DecompressResponse(response)
+	respBodyDecomp, err3 := utils.DecompressResponse(response)
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		return C.IdMapResult{
@@ -414,7 +413,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 
 	defer response.Body.Close()
 
-	respBodyDecomp, err3 := dependencies.DecompressResponse(response)
+	respBodyDecomp, err3 := utils.DecompressResponse(response)
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
@@ -497,15 +496,11 @@ func parseMetadata(meta Metadata) (keys []string, values []string) {
 	}
 	values[dataLen-1] = strings.TrimSuffix(values[dataLen-1], ",")
 
-	if meta.SelfReportedCirculatingSupply != nil {
-		keys = append(keys, "self_reported_circulating_supply")
-		values = append(values, strconv.FormatFloat(*meta.SelfReportedCirculatingSupply, 'f', -1, 64))
-	}
+	keys = append(keys, "self_reported_circulating_supply")
+	values = append(values, strconv.FormatFloat(meta.SelfReportedCirculatingSupply, 'f', -1, 64))
 
-	if meta.SelfReportedCirculatingSupply != nil {
-		keys = append(keys, "self_reported_market_cap")
-		values = append(values, strconv.FormatFloat(*meta.SelfReportedMarketCap, 'f', -1, 64))
-	}
+	keys = append(keys, "self_reported_market_cap")
+	values = append(values, strconv.FormatFloat(meta.SelfReportedMarketCap, 'f', -1, 64))
 
 	return
 }
@@ -616,7 +611,6 @@ func query_listings(start, limit, price_min, price_max, market_cap_min, market_c
 	}
 	// 将查询参数添加到 URL 查询字符串中
 	u.RawQuery = params.Encode()
-	fmt.Println("go print: ", u.String())
 	req, err1 := http.NewRequest("GET", u.String(), nil)
 	if err1 != nil {
 		errStr := "Failed to create request"
@@ -644,7 +638,7 @@ func query_listings(start, limit, price_min, price_max, market_cap_min, market_c
 
 	defer response.Body.Close()
 
-	respBodyDecomp, err3 := dependencies.DecompressResponse(response)
+	respBodyDecomp, err3 := utils.DecompressResponse(response)
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
@@ -736,14 +730,11 @@ func parseMarketMetadata(marketData ListingsData) (keys []string, values []strin
 	keys = []string{"id", "name", "symbol", "slug", "cmc_rank", "num_market_pairs", "circulating_supply", "total_supply", "max_supply", "last_updated", "date_added", "tvl_ratio", "tags"}
 	values = []string{strconv.Itoa(marketData.ID), marketData.Name, marketData.Symbol, marketData.Slug, strconv.Itoa(marketData.CmcRank), strconv.Itoa(marketData.NumMarketPairs), strconv.FormatFloat(marketData.CirculatingSupply, 'f', -1, 64), strconv.FormatFloat(marketData.TotalSupply, 'f', -1, 64), strconv.FormatFloat(marketData.MaxSupply, 'f', -1, 64), marketData.LastUpdated.String(), marketData.DateAdded.String(), strconv.FormatFloat(marketData.TvlRatio, 'f', -1, 64), strings.Join(marketData.Tags, ",")}
 
-	if marketData.SelfReportedCirculatingSupply != nil {
-		keys = append(keys, "self_reported_circulating_supply")
-		values = append(values, strconv.FormatFloat(*marketData.SelfReportedCirculatingSupply, 'f', -1, 64))
-	}
-	if marketData.SelfReportedMarketCap != nil {
-		keys = append(keys, "self_reported_market_cap")
-		values = append(values, strconv.FormatFloat(*marketData.SelfReportedMarketCap, 'f', -1, 64))
-	}
+	keys = append(keys, "self_reported_circulating_supply")
+	values = append(values, strconv.FormatFloat(marketData.SelfReportedCirculatingSupply, 'f', -1, 64))
+
+	keys = append(keys, "self_reported_market_cap")
+	values = append(values, strconv.FormatFloat(marketData.SelfReportedMarketCap, 'f', -1, 64))
 
 	return
 }
