@@ -15,17 +15,17 @@ type Platform struct {
 }
 
 type Quote struct {
-	Price float64 `json:"price"`
-	//Volume24h             float64 `json:"volume_24h"`
-	//VolumeChange24h       float64 `json:"volume_change_24h"`
-	//PercentChange1h       float64 `json:"percent_change_1h"`
-	//PercentChange24h      float64 `json:"percent_change_24h"`
-	//PercentChange7d       float64 `json:"percent_change_7d"`
-	//PercentChange30d      float64 `json:"percent_change_30d"`
-	//MarketCap             float64 `json:"market_cap"`
-	//MarketCapDominance    float64 `json:"market_cap_dominance"`
-	//FullyDilutedMarketCap float64 `json:"fully_diluted_market_cap"`
-	//LastUpdated           string  `json:"last_updated"`
+	Price                 float64   `json:"price"`
+	Volume24h             float64   `json:"volume_24h"`
+	VolumeChange24h       float64   `json:"volume_change_24h"`
+	PercentChange1h       float64   `json:"percent_change_1h"`
+	PercentChange24h      float64   `json:"percent_change_24h"`
+	PercentChange7d       float64   `json:"percent_change_7d"`
+	PercentChange30d      float64   `json:"percent_change_30d"`
+	MarketCap             float64   `json:"market_cap"`
+	MarketCapDominance    float64   `json:"market_cap_dominance"`
+	FullyDilutedMarketCap float64   `json:"fully_diluted_market_cap"`
+	LastUpdated           time.Time `json:"last_updated"`
 }
 
 type QuoteData struct {
@@ -107,24 +107,28 @@ type MetadataResp struct {
 	Status StatusResp          `json:"status"`
 }
 
-type ListingsLatestData struct {
-	ID                int              `json:"id"`
-	Name              string           `json:"name"`
-	Symbol            string           `json:"symbol"`
-	Slug              string           `json:"slug"`
-	NumMarketPairs    int              `json:"num_market_pairs"`
-	CirculatingSupply float64          `json:"circulating_supply"`
-	TotalSupply       float64          `json:"total_supply"`
-	MaxSupply         float64          `json:"max_supply"`
-	InfiniteSupply    bool             `json:"infinite_supply"`
-	LastUpdated       time.Time        `json:"last_updated"`
-	DateAdded         time.Time        `json:"date_added"`
-	Tags              []string         `json:"tags"`
-	Platform          *Platform        `json:"platform"`
-	Quote             map[string]Quote `json:"quote"`
+type ListingsData struct {
+	ID                            int       `json:"id"`
+	Name                          string    `json:"name"`
+	Symbol                        string    `json:"symbol"`
+	Slug                          string    `json:"slug"`
+	CmcRank                       int       `json:"cmc_rank"`
+	NumMarketPairs                int       `json:"num_market_pairs"`
+	CirculatingSupply             float64   `json:"circulating_supply"`
+	TotalSupply                   float64   `json:"total_supply"`
+	MaxSupply                     float64   `json:"max_supply"`
+	InfiniteSupply                bool      `json:"infinite_supply"`
+	LastUpdated                   time.Time `json:"last_updated"`
+	DateAdded                     time.Time `json:"date_added"`
+	SelfReportedCirculatingSupply *float64  `json:"self_reported_circulating_supply"`
+	SelfReportedMarketCap         *float64  `json:"self_reported_market_cap"`
+	TvlRatio                      float64   `json:"tvl_ratio"`
+	Tags                          []string  `json:"tags"`
+	//Platform                      *Platform        `json:"platform"`
+	Quote map[string]Quote `json:"quote"`
 }
 
-type ListingsLatestResp struct {
-	Data   []ListingsLatestData `json:"data"`
-	Status StatusResp           `json:"status"`
+type ListingsResp struct {
+	Data   []ListingsData `json:"data"`
+	Status StatusResp     `json:"status"`
 }

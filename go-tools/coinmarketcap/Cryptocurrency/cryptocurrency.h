@@ -17,6 +17,8 @@ DEFINE_DICT(String)
 
 DEFINE_LIST(Dict_String)
 
+DEFINE_DICT(Dict_String)
+
 typedef struct {
     Bool is_fail;
     String error_message;
@@ -41,5 +43,21 @@ typedef struct {
 
 void release_MetadataResult(MetadataResult result);
 
+typedef struct {
+    Dict_String metadata;
+    Dict_Dict_String quotes;
+} MarketData;
+
+void release_MarketData(MarketData data);
+
+DEFINE_LIST(MarketData)
+
+typedef struct {
+    Bool is_fail;
+    String error_message;
+    List_MarketData data;
+}ListingResult;
+
+void release_ListingResult(ListingResult result);
 
 #endif
