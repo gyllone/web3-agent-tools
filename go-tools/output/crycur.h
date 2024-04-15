@@ -83,17 +83,21 @@ extern "C" {
 
 // TODO: 使用symbol参数请求的话，返回格式与id和slug不统一，暂不支持
 //
-extern __declspec(dllexport) QuoteResult query_quotes(Optional_String id, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
-extern __declspec(dllexport) void query_quotes_release(QuoteResult result);
-extern __declspec(dllexport) IdMapResult query_id_map(Optional_String listing_status, Optional_String sort, Optional_String symbol, Optional_String aux, Optional_Int start, Optional_Int limit);
-extern __declspec(dllexport) void query_id_map_release(IdMapResult result);
+extern __declspec(dllexport) Result_List_List_Float query_quotes(Optional_String id, Optional_String slug, Optional_String convert, Optional_String convert_id, Optional_String aux, Optional_Bool skip_invalid);
+extern __declspec(dllexport) void query_quotes_release(Result_List_List_Float result);
+extern __declspec(dllexport) Result_List_Dict_String query_id_map(Optional_String listing_status, Optional_String sort, Optional_String symbol, Optional_String aux, Optional_Int start, Optional_Int limit);
+extern __declspec(dllexport) void query_id_map_release(Result_List_Dict_String result);
 
 // TODO: symbol请求与id和slug格式不符，暂未实现
 //
-extern __declspec(dllexport) MetadataResult query_metadata(Optional_String id, Optional_String slug, Optional_String address, Optional_String aux, Optional_Bool skip_invalid);
-extern __declspec(dllexport) void query_metadata_release(MetadataResult result);
-extern __declspec(dllexport) ListingResult query_listings(Optional_Int start, Optional_Int limit, Optional_Int price_min, Optional_Int price_max, Optional_Int market_cap_min, Optional_Int market_cap_max, Optional_Int volume_24h_min, Optional_Int volume_24h_max, Optional_Int circulating_supply_min, Optional_Int circulating_supply_max, Optional_Int percent_change_24h_min, Optional_Int percent_change_24h_max, Optional_String convert, Optional_String convert_id, Optional_String sort, Optional_String sort_dir, Optional_String cryptocurrency_type, Optional_String tag, Optional_String aux);
-extern __declspec(dllexport) void query_listings_release(ListingResult result);
+extern __declspec(dllexport) Result_List_Dict_String query_metadata(Optional_String id, Optional_String slug, Optional_String address, Optional_String aux, Optional_Bool skip_invalid);
+extern __declspec(dllexport) void query_metadata_release(Result_List_Dict_String result);
+extern __declspec(dllexport) Result_List_MarketData query_listings(Optional_Int start, Optional_Int limit, Optional_Int price_min, Optional_Int price_max, Optional_Int market_cap_min, Optional_Int market_cap_max, Optional_Int volume_24h_min, Optional_Int volume_24h_max, Optional_Int circulating_supply_min, Optional_Int circulating_supply_max, Optional_Int percent_change_24h_min, Optional_Int percent_change_24h_max, Optional_String convert, Optional_String convert_id, Optional_String sort, Optional_String sort_dir, Optional_String cryptocurrency_type, Optional_String tag, Optional_String aux);
+extern __declspec(dllexport) void query_listings_release(Result_List_MarketData result);
+extern __declspec(dllexport) Result_List_Category query_categories(Optional_Int start, Optional_Int limit, Optional_String id, Optional_String slug, Optional_String symbol);
+extern __declspec(dllexport) void query_categories_release(Result_List_Category result);
+extern __declspec(dllexport) Result_Optional_CategorySingle query_category(String id, Optional_Int start, Optional_Int limit, Optional_String convert, Optional_String convert_id);
+extern __declspec(dllexport) void query_category_release(Result_Optional_CategorySingle result);
 
 #ifdef __cplusplus
 }

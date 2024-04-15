@@ -132,3 +132,69 @@ type ListingsResp struct {
 	Data   []ListingsData `json:"data"`
 	Status StatusResp     `json:"status"`
 }
+
+type Category struct {
+	ID              string    `json:"id"`
+	Name            string    `json:"name"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	NumTokens       int       `json:"num_tokens"`
+	AvgPriceChange  float64   `json:"avg_price_change"`
+	MarketCap       float64   `json:"market_cap"`
+	MarketCapChange float64   `json:"market_cap_change"`
+	Volume          float64   `json:"volume"`
+	VolumeChange    float64   `json:"volume_change"`
+	LastUpdated     time.Time `json:"last_updated"`
+}
+
+type CategoriesResp struct {
+	Data   []Category `json:"data"`
+	Status StatusResp `json:"status"`
+}
+
+type CategorySingle struct {
+	Category
+	Coins []Coin `json:"coins"`
+}
+
+type Coin struct {
+	ID                int                   `json:"id"`
+	Name              string                `json:"name"`
+	Symbol            string                `json:"symbol"`
+	Slug              string                `json:"slug"`
+	NumMarketPairs    int64                 `json:"num_market_pairs"`
+	DateAdded         time.Time             `json:"date_added"`
+	Tags              []string              `json:"tags"`
+	MaxSupply         float64               `json:"max_supply"`
+	CirculatingSupply float64               `json:"circulating_supply"`
+	TotalSupply       float64               `json:"total_supply"`
+	IsActive          int64                 `json:"is_active"`
+	InfiniteSupply    bool                  `json:"infinite_supply"`
+	TvlRatio          float64               `json:"tvl_ratio"`
+	CmcRank           int64                 `json:"cmc_rank"`
+	IsFiat            int64                 `json:"is_fiat"`
+	LastUpdated       time.Time             `json:"last_updated"`
+	Quote             map[string]PriceQuote `json:"quote"`
+}
+
+type PriceQuote struct {
+	Price                 float64   `json:"price"`
+	Volume24h             float64   `json:"volume_24h"`
+	VolumeChange24h       float64   `json:"volume_change_24h"`
+	PercentChange1h       float64   `json:"percent_change_1h"`
+	PercentChange24h      float64   `json:"percent_change_24h"`
+	PercentChange7d       float64   `json:"percent_change_7d"`
+	PercentChange30d      float64   `json:"percent_change_30d"`
+	PercentChange60d      float64   `json:"percent_change_60d"`
+	PercentChange90d      float64   `json:"percent_change_90d"`
+	MarketCap             float64   `json:"market_cap"`
+	MarketCapDominance    float64   `json:"market_cap_dominance"`
+	FullyDilutedMarketCap float64   `json:"fully_diluted_market_cap"`
+	Tvl                   float64   `json:"tvl"`
+	LastUpdated           time.Time `json:"last_updated"`
+}
+
+type CategoryResp struct {
+	Data   CategorySingle `json:"data"`
+	Status StatusResp     `json:"status"`
+}

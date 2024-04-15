@@ -34,25 +34,25 @@ class IdMapInput(BaseModel):
 
 
 class Result(BaseModel):
-    is_fail: bool = Field(description="is_fail")
-    error_message: str = Field(description="error_message")
+    status: bool = Field(description="is_fail")
+    error: str = Field(description="error_message")
 
 
 class IdMapOutput(Result):
-    data: list[dict[str, str]] = Field(description="idMaps")
+    value: list[dict[str, str]] = Field(description="idMaps")
 
 
 class QuoteInput(BaseModel):
-    id: Optional[str]
-    slug: Optional[str]
-    convert: Optional[str]
-    convert_id: Optional[str]
-    aux: Optional[str]
-    skip_invalid: Optional[bool]
+    id: Optional[str] = Field(None)
+    slug: Optional[str] = Field(None)
+    convert: Optional[str] = Field(None)
+    convert_id: Optional[str] = Field(None)
+    aux: Optional[str] = Field(None)
+    skip_invalid: Optional[bool] = Field(None)
 
 
 class QuoteOutput(Result):
-    data: list[list[float]] = Field(description="quotes")
+    value: list[list[float]] = Field(description="quotes")
 
 
 class MetaInput(BaseModel):
@@ -64,7 +64,7 @@ class MetaInput(BaseModel):
 
 
 class MetaOutput(Result):
-    data: list[dict[str, str]] = Field(description="metas")
+    value: list[dict[str, str]] = Field(description="metas")
 
 
 class ListingInput(BaseModel):
@@ -95,27 +95,27 @@ class Market(BaseModel):
 
 
 class ListingOutput(Result):
-    data: list[Market] = Field(description="market data")
+    value: list[Market] = Field(description="market data")
 
 
 if __name__ == '__main__':
     schema = ToolSchema(
         # name="query_quotes",
-        name="query_listings",
+        name="query_quotes",
         description="This is a test",
-        # args_schema=ParamSchema.from_model_type(QuoteInput),
-        # result_schema=ParamSchema.from_model_type(QuoteOutput),
-        args_schema=ParamSchema.from_model_type(ListingInput),
-        result_schema=ParamSchema.from_model_type(ListingOutput),
+        args_schema=ParamSchema.from_model_type(QuoteInput),
+        result_schema=ParamSchema.from_model_type(QuoteOutput),
+        # args_schema=ParamSchema.from_model_type(ListingInput),
+        # result_schema=ParamSchema.from_model_type(ListingOutput),
         # args_schema=ParamSchema.from_model_type(Input),
         # result_schema=ParamSchema.from_model_type(Output),
     )
 
     print("\n===============Running Tool===============\n")
 
-    # args = QuoteInput(id="1,3,5")
-    args = ListingInput(limit=5, convert="ETH")
-    resp = schema.run_tool("../go-tools/output/crycur.so", args.dict(by_alias=True))
+    args = QuoteInput(id="1,3,5")
+    # args = ListingInput(limit=5, convert="ETH")
+    resp = schema.run_tool("../go-tools/output/crycur.so", args.dict(by_alias=True, exclude_none=True))
 
     #     args = Input(
     #         foo="foo",
