@@ -1,68 +1,5 @@
 [
   {
-    "name": "get_blockbeats_news",
-    "description": "query block beats news",
-    "args_schema": {
-      "properties": {
-        "date": {
-          "description": "news date in format %Y-%m-%d, like 2023-01-01",
-          "type": "string"
-        },
-        "limit": {
-          "description": "limitation of size",
-          "default": 1,
-          "type": "integer"
-        }
-      }
-    },
-    "result_schema": {
-      "properties": {
-        "success": {
-          "description": "if the request is success",
-          "type": "boolean"
-        },
-        "items": {
-          "description": "list of news",
-          "type": "array",
-          "items": {
-            "ref": "#/definitions/NewsItem"
-          }
-        }
-      },
-      "required": [
-        "success",
-        "items"
-      ],
-      "definitions": {
-        "NewsItem": {
-          "properties": {
-            "title": {
-              "description": "title of news",
-              "type": "string"
-            },
-            "content": {
-              "description": "content of news",
-              "type": "string"
-            },
-            "unixtime": {
-              "description": "time of news in unix timestamp",
-              "type": "integer"
-            }
-          },
-          "required": [
-            "title",
-            "content",
-            "unixtime"
-          ]
-        }
-      }
-    },
-    "return_direct": false,
-    "metadata": {
-      "annotation": "*querying blockbeats flash news*\n"
-    }
-  },
-  {
     "name": "get_panews",
     "description": "query from panews",
     "args_schema": {
@@ -73,27 +10,31 @@
         },
         "limit": {
           "description": "limitation of size",
-          "default": 1,
           "type": "integer"
         }
       }
     },
     "result_schema": {
       "properties": {
-        "success": {
+        "status": {
           "description": "if the request is success",
           "type": "boolean"
+        },
+        "error": {
+          "description": "error message",
+          "type": "string"
         },
         "items": {
           "description": "list of news",
           "type": "array",
           "items": {
-            "ref": "#/definitions/NewsItem"
+            "$ref": "#/definitions/NewsItem"
           }
         }
       },
       "required": [
-        "success",
+        "status",
+        "error",
         "items"
       ],
       "definitions": {
@@ -107,22 +48,89 @@
               "description": "content of news",
               "type": "string"
             },
-            "unixtime": {
-              "description": "time of news in unix timestamp",
-              "type": "integer"
+            "timestamp": {
+              "description": "timestamp of news",
+              "type": "string"
             }
           },
           "required": [
             "title",
             "content",
-            "unixtime"
+            "timestamp"
           ]
         }
       }
     },
     "return_direct": false,
     "metadata": {
-      "annotation": "*querying from pannews*\n"
+      "annotation": "*querying from panews*\n"
+    }
+  },
+  {
+    "name": "get_blockbeats_news",
+    "description": "query from blockbeats news",
+    "args_schema": {
+      "properties": {
+        "date": {
+          "description": "news date in format %Y-%m-%d, like 2023-01-01",
+          "type": "string"
+        },
+        "limit": {
+          "description": "limitation of size",
+          "type": "integer"
+        }
+      }
+    },
+    "result_schema": {
+      "properties": {
+        "status": {
+          "description": "if the request is success",
+          "type": "boolean"
+        },
+        "error": {
+          "description": "error message",
+          "type": "string"
+        },
+        "items": {
+          "description": "list of news",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/NewsItem"
+          }
+        }
+      },
+      "required": [
+        "status",
+        "error",
+        "items"
+      ],
+      "definitions": {
+        "NewsItem": {
+          "properties": {
+            "title": {
+              "description": "title of news",
+              "type": "string"
+            },
+            "content": {
+              "description": "content of news",
+              "type": "string"
+            },
+            "timestamp": {
+              "description": "timestamp of news",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "content",
+            "timestamp"
+          ]
+        }
+      }
+    },
+    "return_direct": false,
+    "metadata": {
+      "annotation": "*querying from blockbeats*\n"
     }
   }
 ]

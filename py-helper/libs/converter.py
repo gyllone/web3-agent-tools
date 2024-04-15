@@ -233,11 +233,11 @@ class ValueConverter(TypeConverter):
             if key not in required:
                 if prop.default is None:
                     # optional
-                    c_values[key] = self._py_optional_to_c_optional(prop, py_values[key])
+                    c_values[key] = self._py_optional_to_c_optional(prop, py_values.get(key))
                 else:
                     c_values[key] = self._py_value_to_c_value(prop, prop.default)
             else:
-                c_values[key] = self._py_value_to_c_value(prop, py_values[key])
+                c_values[key] = self._py_value_to_c_value(prop, py_values.get(key))
 
         return c_values
 
