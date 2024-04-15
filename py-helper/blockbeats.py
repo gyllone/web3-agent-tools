@@ -14,7 +14,7 @@ class BlockBeatsNewsArgs(BaseModel):
 class NewsItem(BaseModel):
     title: str = Field(description="title of news")
     content: str = Field(description="content of news")
-    unixtime: str = Field(description="time of news in unix timestamp")
+    timestamp: str = Field(description="timestamp of news")
 
 
 class BlockBeatsNewsResult(BaseModel):
@@ -25,24 +25,24 @@ class BlockBeatsNewsResult(BaseModel):
 
 if __name__ == '__main__':
     schema = ToolSchema(
-        name="get_panews",
-        description="query from panews",
+        name="get_blockbeats_news",
+        description="query from blockbeats news",
         args_schema=ParamSchema.from_model_type(BlockBeatsNewsArgs),
         result_schema=ParamSchema.from_model_type(BlockBeatsNewsResult),
         metadata={
-            "annotation": "*querying from pannews*\n"
+            "annotation": "*querying from blockbeats*\n"
         }
     )
     # print tool schema
-    print(schema.json(indent=2, exclude_none=True))
+    print(schema.json(indent=2, by_alias=True, exclude_none=True))
 
     print("\n===============Running Tool===============\n")
 
     args = BlockBeatsNewsArgs(
-        date="2024-04-10",
+        # date="2024-04-10",
         limit=2
     )
 
-    resp = schema.run_tool("../go-tools/outputs/flash_news.so", args.dict(by_alias=True))
+    resp = schema.run_tool("../go-tools/outputs/flash_news.so", args.dict(by_alias=True, exclude_none=True))
     if resp is not None:
         print(json.dumps(resp, indent=2, ensure_ascii=False))
