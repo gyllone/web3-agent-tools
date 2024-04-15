@@ -35,6 +35,93 @@ type QuoteKlinePoint struct {
 
 type QuoteKlineResponse []*QuoteKlinePoint
 
+type QuoteTicker24HRequest struct {
+	Symbol string `url:"symbol"`
+}
+
+type QuoteTicker24HR struct {
+	TimeStamp             int64  `json:"t"`
+	Symbol                string `json:"s"`
+	LatestTradedPrice     string `json:"c"`
+	HighestPrice          string `json:"h"`
+	LowestPrice           string `json:"l"`
+	OpeningPrice          string `json:"o"`
+	HighestBidPrice       string `json:"b"`
+	HighestSellingPrice   string `json:"a"`
+	BaseAssetTradeVolume  string `json:"v"`
+	QuoteAssetTradeVolume string `json:"qv"`
+}
+
+type QuoteTicker24HResponse []QuoteTicker24HR
+
+// -- quote trades
+type QuoteTradesRequest struct {
+	Symbol string `url:"symbol"`
+	Limit  int    `url:"limit"`
+}
+
+type QuoteTrades struct {
+	TradedTimestamp int64 `json:"t"`
+	TradedPrice     int64 `json:"p"`
+	Volume          int64 `json:"q"`
+	IfBuyerMaker    bool  `json:"ibm"`
+}
+
+type QuoteTradesResponse []QuoteTrades
+
+type QuoteMergedDepthRequest struct {
+	Symbol string `url:"symbol"`
+	Limit  int    `url:"limit"`
+	Scale  int    `url:"scale"`
+}
+
+type OrderBookLayers []string
+
+type QuoteMergedDepthResponse struct {
+	Timestamp     int64             `json:"timestamp"`
+	SellingLayers []OrderBookLayers `json:"a"`
+	BuyingLayers  []OrderBookLayers `json:"b"`
+}
+
+type QuoteBookTickerRequest struct {
+	Symbol string `url:"symbol"`
+}
+
+type QuoteBookTicker struct {
+	Symbol         string `json:"s"`
+	TopBidPrice    string `json:"b"`
+	TopBidQuantity string `json:"bq"`
+	TopAskPrice    string `json:"a"`
+	TopAskQuantity string `json:"aq"`
+	Timestamp      int64  `json:"t"`
+}
+
+type QuoteBookTickerResponse []QuoteBookTicker
+
+type QuoteTickerPriceRequest struct {
+	Symbol string `json:"symbol"`
+}
+
+type QuoteTickerPrice struct {
+	Symbol            string `json:"s"`
+	LatestTradedPrice string `json:"p"`
+}
+
+type QuoteTickerPriceResponse []QuoteTickerPrice
+
+type QuoteDepthRequest struct {
+	Symbol string `url:"symbol"`
+	Limit  int    `url:"limit"`
+}
+
+type QuoteDepth []string
+
+type QuoteDepthResponse struct {
+	Timestamp   int64        `json:"t"`
+	BuyingList  []QuoteDepth `json:"b"`
+	SellingList []QuoteDepth `json:"a"`
+}
+
 type ErrorMsg struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
@@ -43,7 +130,7 @@ type ErrorMsg struct {
 /*
 --- auth ------
 */
-type HashKeyAuth struct {
+type HashKeyApiAuth struct {
 	Secret string
 	ApiKey string
 }
@@ -177,4 +264,64 @@ type CancelMultiOrdersResult struct {
 type CancelMultiOrdersResponse struct {
 	Code   string                    `json:"code"`
 	Result []CancelMultiOrdersResult `json:"result"`
+}
+
+/*
+----  account api -------
+*/
+type GetAccountInfoRequest struct {
+	AccountId string `url:"accountId"`
+	Timestamp int64  `url:"timestamp"`
+}
+
+type AccountBalance struct {
+	Asset     string `json:"asset"`
+	AssetId   string `json:"assetId"`
+	AssetName string `json:"assetName"`
+	Total     string `json:"total"`
+	Free      string `json:"free"`
+	Locked    string `json:"locked"`
+}
+
+type GetAccountInfoResponse struct {
+	UserId   string           `json:"userId"`
+	Balances []AccountBalance `json:"balances"`
+}
+
+// get account trade list
+type GetAccountTradeListRequest struct {
+	Timestamp     int64  `url:"timestamp"`
+	Symbol        string `url:"symbol"`
+	StartTime     int64  `url:"startTime"`
+	EndTime       int64  `url:"endTime"`
+	ClientOrderId string `url:"clientOrderId"`
+	FromId        int64  `url:"fromId"`
+	Told          int64  `url:"endId"`
+	Limit         int    `url:"limit"`
+}
+
+// todo
+type GetAccountTradeListResponse struct {
+}
+
+type BalanceFlowType int
+
+const (
+	BalanceFlowType_Trade                 = 1
+	BalanceFlowType_Fee                   = 2
+	BalanceFlowType_User_Account_Transfer = 51
+	BalanceFlowType_Custody_Deposit       = 900
+	BalanceFlowType_Custody_Withdraw      = 904
+)
+
+// get balance flow
+type GetAccountBalanceFlowRequest struct {
+	Timestamp int64           `url:"timestamp"`
+	StartTime int64           `url:"startTime"`
+	EndTime   int64           `url:"endTime"`
+	Limit     int             `url:"limit"`
+	FlowType  BalanceFlowType `url:"flowType"`
+}
+
+type GetAccountBalanceFlowResponse struct {
 }

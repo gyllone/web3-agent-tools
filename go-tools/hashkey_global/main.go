@@ -11,7 +11,7 @@ import (
 func main() {
 	klinereq := QuoteKlineRequest{}
 	fmt.Println(query.Values(klinereq))
-	url := fmt.Sprintf("%s?symbol=BTCUSDT&interval=1m&limit=100", API_KLINE)
+	url := fmt.Sprintf("%s?symbol=BTCUSDT&interval=1m&limit=100", API_QUOTE_KLINE)
 	fmt.Println("query:", url)
 	req, _ := http.NewRequest("GET", url, nil)
 

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var testAuth = HashKeyAuth{
+var testAuth = HashKeyApiAuth{
 	Secret: "4FcFv4f3kIsfpVh2HcL7rES9iLN3nfTubeZvzjb97jXnWpndvvfFLgHIAqrNEJip",
 	ApiKey: "AAyrJfY2VBLYCIBNa8k8kbppXAeBzF1i9Tmz2DawdEbWLzzBjGj0bRKFW0q0F3cd",
 }
@@ -27,7 +27,7 @@ func TestCreateSpotOrder(t *testing.T) {
 }
 
 func TestQueryOpenSpotOrders(t *testing.T) {
-	resp, err := queryCurrentSoptOrder(&QueryOpenOrdersRequest{
+	resp, err := queryCurrentOpenSoptOrder(&QueryOpenOrdersRequest{
 		Timestamp: time.Now().UnixMilli(),
 	}, &testAuth)
 	if err != nil {

@@ -26,7 +26,15 @@ func create_signature(content string, secret string) string {
 	return hex.EncodeToString(signature)
 }
 
-func request(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, method string, auth *HashKeyAuth) error {
+func requestWithSignature(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, method string, auth *HashKeyApiAuth) error {
+	return generalRequest(reqObj, deFunc, apiEndPoint, method, auth)
+}
+
+func requestWithoutSignature(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, method string) error {
+	return generalRequest(reqObj, deFunc, apiEndPoint, method, nil)
+}
+
+func generalRequest(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, method string, auth *HashKeyApiAuth) error {
 	urlValues, err := query.Values(reqObj)
 	if err != nil {
 		return err
@@ -34,13 +42,20 @@ func request(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, met
 
 	urlString := urlValues.Encode()
 
-	url := fmt.Sprintf("%s?%s&signature=%s", apiEndPoint, urlString, create_signature(urlString, auth.Secret))
+	url := ""
+	if auth != nil {
+		url = fmt.Sprintf("%s?%s&signature=%s", apiEndPoint, urlString, create_signature(urlString, auth.Secret))
+	} else {
+		url = fmt.Sprintf("%s?%s", apiEndPoint, urlString)
+	}
 	fmt.Printf("req: url: %s\n", url)
 
 	req, _ := http.NewRequest(method, url, nil)
 
 	req.Header.Add("accept", "application/json")
-	req.Header.Add("X-HK-APIKEY", auth.ApiKey)
+	if auth != nil {
+		req.Header.Add("X-HK-APIKEY", auth.ApiKey)
+	}
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
@@ -52,7 +67,6 @@ func request(reqObj interface{}, deFunc deserializeFunc, apiEndPoint string, met
 	}
 
 	return deFunc(body)
-
 }
 
 type deserializeFunc func([]byte) error
