@@ -41,7 +41,9 @@ Optional_##type none_##type() { \
     return opt; \
 } \
 void release_Optional_##type(Optional_##type opt) { \
-    release_##type(opt.value); \
+    if (opt.is_some) { \
+        release_##type(opt.value); \
+    } \
 }
 
 #define DEFINE_LIST(type) \
@@ -128,8 +130,11 @@ Result_##type err_##type(String error) { \
     return result; \
 } \
 void release_Result_##type(Result_##type result) { \
-    free(result.error); \
-    release_##type(result.value); \
+    if (result.status) { \
+        release_##type(result.value); \
+    } else { \
+        free(result.error); \
+    } \
 }
 
 #endif

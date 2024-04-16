@@ -1,4 +1,5 @@
 import json
+
 from typing import Optional
 from pydantic import BaseModel, Field
 
@@ -30,6 +31,9 @@ if __name__ == '__main__':
         description="This is a test",
         args_schema=ParamSchema.from_model_type(Input),
         result_schema=ParamSchema.from_model_type(Output),
+        metadata={
+            "annotation": "*querying from blockbeats*\n"
+        }
     )
 
     print("\n===============Running Tool===============\n")
@@ -46,6 +50,6 @@ if __name__ == '__main__':
             baz={"x": 1, "y": 2},
         ),
     )
-    resp = schema.run_tool("../go-tools/outputs/test.so", args.dict(by_alias=True))
+    resp = schema.run_tool("../../go-tools/outputs/test.so", args.dict(by_alias=True))
     if resp is not None:
         print(json.dumps(resp, indent=2))

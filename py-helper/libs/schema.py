@@ -11,6 +11,23 @@ class Property(BaseModel):
     items: Optional["Property"] = None
     additionalProperties: Optional["Property"] = None
 
+    def parse_type(self) -> Optional[Type[str | float | int | bool | list | dict]]:
+        if not self.type:
+            return None
+
+        if self.type == "string":
+            return str
+        elif self.type == "number":
+            return float
+        elif self.type == "integer":
+            return int
+        elif self.type == "boolean":
+            return bool
+        elif self.type == "array":
+            return list
+        elif self.type == "object":
+            return dict
+
     def get_ref_type(self) -> Optional[str]:
         return self.ref.split("/")[-1] if self.ref else None
 
@@ -39,11 +56,11 @@ class Object(BaseModel):
     required: Optional[list[str]] = None
 
 
-class Schema(Object):
+class ParamSchema(Object):
     definitions: Optional[dict[str, Object]] = None
 
     @classmethod
-    def from_model_type(cls, model: Type[BaseModel]) -> "Schema":
+    def from_model_type(cls, model: Type[BaseModel]) -> "ParamSchema":
         schema = model.schema()
         return cls.parse_obj(schema)
 

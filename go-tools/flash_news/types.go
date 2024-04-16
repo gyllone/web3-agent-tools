@@ -29,7 +29,7 @@ type BB_Item struct {
 	IOS              int      `json:"ios"`
 	IsFirst          int      `json:"is_first"`
 	IsHot            int      `json:"is_hot"`
-	AddTime          int      `json:"add_time"`
+	AddTime          int64    `json:"add_time"`
 	ImgURL           string   `json:"img_url"`
 	URL              string   `json:"url"`
 	CryptoToken      string   `json:"crypto_token"`
@@ -85,6 +85,6 @@ type Custom_FlashNewsItem struct {
 	ArticleID string
 	Title     string
 	Content   string
-	AddTime   int
+	AddTime   int64
 	Url       string
 }
