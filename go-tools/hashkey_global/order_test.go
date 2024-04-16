@@ -26,6 +26,27 @@ func TestCreateSpotOrder(t *testing.T) {
 	t.Logf("resp:%+v\n", resp)
 }
 
+func TestQuerySplotOrder(t *testing.T) {
+	resp, err := querySpotOrder(&QueryOrderRequest{
+		OrderId:   "1664553449910475776",
+		Timestamp: time.Now().UnixMilli(),
+	}, &testAuth)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Logf("resp:%+v\n", resp)
+}
+
+func TestQueryAllTradedOrders(t *testing.T) {
+	resp, err := queryAllTradedOrders(&QueryAllTradedOrdersRequest{
+		Timestamp: time.Now().UnixMilli(),
+	}, &testAuth)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Logf("resp:%+v\n", resp)
+}
+
 func TestQueryOpenSpotOrders(t *testing.T) {
 	resp, err := queryCurrentOpenSoptOrder(&QueryOpenOrdersRequest{
 		Timestamp: time.Now().UnixMilli(),

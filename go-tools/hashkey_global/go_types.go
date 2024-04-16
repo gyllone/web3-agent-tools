@@ -266,6 +266,72 @@ type CancelMultiOrdersResponse struct {
 	Result []CancelMultiOrdersResult `json:"result"`
 }
 
+type QueryOrderRequest struct {
+	OrderId   string `url:"orderId"`
+	Timestamp int64  `url:"timestamp"`
+}
+
+type QueryOrderResponse struct {
+	AccountId          string `json:"accountId"`
+	ExchangeId         string `json:"exchangeId"`
+	Symbol             string `json:"symbol"`
+	SymbolName         string `json:"symbolName"`
+	ClientOrderId      string `json:"clientOrderId"`
+	OrderId            string `json:"orderId"`
+	Price              string `json:"price"` // Assuming decimal values are represented as strings
+	OrigQty            string `json:"origQty"`
+	ExecutedQty        string `json:"executedQty"`
+	CumulativeQuoteQty string `json:"cumulativeQuoteQty"`
+	AvgPrice           string `json:"avgPrice"`
+	Status             string `json:"status"`
+	TimeInForce        string `json:"timeInForce"`
+	Type               string `json:"type"`
+	Side               string `json:"side"`
+	StopPrice          string `json:"stopPrice"`
+	IcebergQty         string `json:"icebergQty"`
+	Time               string `json:"time"`
+	UpdateTime         string `json:"updateTime"`
+	IsWorking          bool   `json:"isWorking"`
+	ReqAmount          string `json:"reqAmount"`
+	FeeCoin            string `json:"feeCoin"`
+	FeeAmount          string `json:"feeAmount"`
+	SumFeeAmount       string `json:"sumFeeAmount"`
+}
+
+type QueryAllTradedOrdersRequest struct {
+	Timestamp   int64  `url:"timestamp"`
+	FromOrderId int64  `url:"fromOrderId"`
+	Symbol      string `url:"symbol"`
+	StartTime   int64  `url:"startTime"`
+	EndTime     int64  `url:"endTime"`
+	Limit       int    `url:"limit"`
+}
+
+type QueryAllTradedOrders struct {
+	ExchangeId         string `json:"exchangeId"`
+	Symbol             string `json:"symbol"`
+	SymbolName         string `json:"symbolName"`
+	ClientOrderId      string `json:"clientOrderId"`
+	OrderId            string `json:"orderId"`
+	Price              string `json:"price"`
+	OrigQty            string `json:"origQty"`
+	ExecutedQty        string `json:"executedQty"`
+	CumulativeQuoteQty string `json:"cumulativeQuoteQty"`
+	AvgPrice           string `json:"avgPrice"`
+	Status             string `json:"status"`
+	TimeInForce        string `json:"timeInForce"`
+	Type               string `json:"type"`
+	Side               string `json:"side"`
+	StopPrice          string `json:"stopPrice"`
+	IcebergQty         string `json:"icebergQty"`
+	Time               string `json:"time"`
+	UpdateTime         string `json:"updateTime"`
+	IsWorking          bool   `json:"isWorking"`
+	ReqAmount          string `json:"reqAmount"` // DECIMAL type is represented as float64 in Go
+}
+
+type QueryAllTradedOrdersResponse []QueryAllTradedOrders
+
 /*
 ----  account api -------
 */
@@ -290,19 +356,46 @@ type GetAccountInfoResponse struct {
 
 // get account trade list
 type GetAccountTradeListRequest struct {
-	Timestamp     int64  `url:"timestamp"`
-	Symbol        string `url:"symbol"`
-	StartTime     int64  `url:"startTime"`
-	EndTime       int64  `url:"endTime"`
-	ClientOrderId string `url:"clientOrderId"`
-	FromId        int64  `url:"fromId"`
-	Told          int64  `url:"endId"`
-	Limit         int    `url:"limit"`
+	Timestamp     int64   `url:"timestamp"`
+	Symbol        *string `url:"symbol,omitempty"`
+	StartTime     *int64  `url:"startTime,omitempty"`
+	EndTime       *int64  `url:"endTime,omitempty"`
+	ClientOrderId *string `url:"clientOrderId,omitempty"`
+	FromId        *int64  `url:"fromId,omitempty"`
+	Told          *int64  `url:"endId,omitempty"`
+	Limit         *int    `url:"limit,omitempty"`
+}
+
+type AccountTradeFeeInfo struct {
+	FeeCoin     string `json:"feeCoin"`
+	FeeCoinID   string `json:"feeCoinId"`
+	FeeCoinName string `json:"feeCoinName"`
+	Fee         string `json:"fee"`
+}
+
+type AccountTrade struct {
+	ID              string              `json:"id"`
+	ClientOrderID   string              `json:"clientOrderId"`
+	TicketID        string              `json:"ticketId"`
+	Symbol          string              `json:"symbol"`
+	SymbolName      string              `json:"symbolName"`
+	OrderID         string              `json:"orderId"`
+	MatchOrderID    string              `json:"matchOrderId,omitempty"` // 使用omitempty忽略空值或零值
+	Price           string              `json:"price"`
+	Qty             string              `json:"qty"`
+	Commission      string              `json:"commission"`
+	CommissionAsset string              `json:"commissionAsset"`
+	Time            string              `json:"time"`
+	IsBuyer         bool                `json:"isBuyer"`
+	IsMaker         bool                `json:"isMaker"`
+	Fee             AccountTradeFeeInfo `json:"fee"`
+	FeeCoinID       string              `json:"feeCoinId"`
+	FeeAmount       string              `json:"feeAmount"`
+	MakerRebate     string              `json:"makerRebate"`
 }
 
 // todo
-type GetAccountTradeListResponse struct {
-}
+type GetAccountTradeListResponse []AccountTrade
 
 type BalanceFlowType int
 
@@ -323,5 +416,103 @@ type GetAccountBalanceFlowRequest struct {
 	FlowType  BalanceFlowType `url:"flowType"`
 }
 
-type GetAccountBalanceFlowResponse struct {
+type AccountBalanceFlow struct {
+	Id            string          `json:"id"`
+	AccountId     string          `json:"accountId"`
+	Coin          string          `json:"coin"`
+	CoinId        string          `json:"coinId"`
+	CoinName      string          `json:"coinName"`
+	FlowTypeValue BalanceFlowType `json:"flowTypeValue"`
+	FlowType      string          `json:"flowType"`
+	Change        string          `json:"change"`
+	Total         string          `json:"total"`
+	Created       string          `json:"created"`
+}
+
+// todo
+type GetAccountBalanceFlowResponse []AccountBalanceFlow
+
+/*
+--- get deposit address -----------
+*/
+type GetDepositAddressRequest struct {
+	Timestamp int64  `url:"timestamp"`
+	Coin      string `url:"coin"`
+	ChainType string `url:"chainType"`
+}
+
+type GetDepositAddressResponse struct {
+	CanDeposit              bool   `json:"canDeposit"`
+	Address                 string `json:"address"`
+	AddressExt              string `json:"addressExt"`
+	MinQuantity             string `json:"minQuantity"`
+	NeedAddressTag          bool   `json:"needAddressTag"`
+	RequiredConfirmTimes    int    `json:"requiredConfirmTimes"`
+	CanWithdrawConfirmTimes int    `json:"canWithdrawConfirmTimes"`
+	CoinType                string `json:"coinType"`
+}
+
+type GetDepositOrdersRequest struct {
+	Timestamp int64  `url:"timestamp"`
+	Coin      string `url:"coin"`
+	StartTime int64  `url:"startTime"`
+	EndTime   int64  `url:"endTime"`
+	FromId    int64  `url:"fromId"`
+	Limit     int    `url:"limit"`
+}
+
+type DepositOrder struct {
+	Time       string `json:"time"`
+	Coin       string `json:"coin"`
+	CoinName   string `json:"coinName"`
+	Address    string `json:"address"`
+	Quantity   string `json:"quantity"`
+	Status     int    `json:"status"`
+	StatusCode int    `json:"statusCode"`
+	TxId       string `json:"txId"`
+}
+
+type GetDepositOrdersResponse []DepositOrder
+
+type GetWithdrawOrdersRequest struct {
+	Timestamp int64   `url:"timestamp"`
+	Coin      *string `url:"coin,omitempty"`
+	StartTime *int64  `url:"startTime,omitempty"`
+	EndTime   *int64  `url:"endTime,omitempty"`
+	Remark    *string `url:"remark,omitempty"`
+	Limit     *int    `url:"limit,omitempty"`
+}
+
+type WithdrawOrder struct {
+	Time           string `json:"time"`           // Timestamp
+	ID             string `json:"id"`             // ID
+	Coin           string `json:"coin"`           // Coin
+	CoinID         string `json:"coinId"`         // Coin ID
+	CoinName       string `json:"coinName"`       // Coin Name
+	Address        string `json:"address"`        // Withdrawal Address
+	Quantity       string `json:"quantity"`       // Withdrawal amount entered by the user
+	ArriveQuantity string `json:"arriveQuantity"` // Net amount received
+	AddressUrl     string `json:"addressUrl"`     // Withdrawal address URL
+	FeeCoinID      string `json:"feeCoinId"`      // Fee Currency ID
+	FeeCoinName    string `json:"feeCoinName"`    // Fee Currency Name
+	Fee            string `json:"fee"`            // Handling fee
+	Remark         string `json:"remark"`         // Remark (To be released)
+}
+
+type GetWithdrawOrdersResponse []WithdrawOrder
+
+type WithdrawRequest struct {
+	Timestamp     int64   `url:"timestamp"`
+	Coin          string  `url:"coin"`
+	ClientOrderId string  `url:"clientOrderId"`
+	Address       string  `url:"address"`
+	AddressExt    string  `url:"addressExt"`
+	Quantity      float64 `url:"quantity"`
+	ChainType     string  `url:"chainType"`
+}
+
+type WithdrawResponse struct {
+	Success bool   `json:"success"`
+	Id      string `json:"id"`
+	OrderId string `json:"orderId"`
 }

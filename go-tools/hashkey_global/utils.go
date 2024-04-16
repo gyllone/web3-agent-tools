@@ -60,7 +60,7 @@ func generalRequest(reqObj interface{}, deFunc deserializeFunc, apiEndPoint stri
 
 	defer res.Body.Close()
 	body, _ := io.ReadAll(res.Body)
-	fmt.Printf("get body:%s", body)
+	fmt.Printf("get body:%s\n", body)
 
 	if res.StatusCode != http.StatusOK {
 		return errors.New(string(body))
