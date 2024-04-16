@@ -93,7 +93,7 @@ func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_inv
 		return C.err_List_List_Float(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -105,11 +105,14 @@ func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_inv
 	}
 
 	defer response.Body.Close()
+
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		return C.err_List_List_Float(C.CString(errStr))
 	}
+
+	defer respBodyDecomp.Close()
 
 	var respBody QuoteResp
 
@@ -191,7 +194,6 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 	if auxIsSome {
 		params.Add("aux", C.GoString(aux.value))
 	}
-	// 将查询参数添加到 URL 查询字符串中
 	u.RawQuery = params.Encode()
 
 	req, err1 := http.NewRequest("GET", u.String(), nil)
@@ -200,7 +202,7 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		return C.err_List_Dict_String(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -218,6 +220,8 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 		errStr := "Failed to decompress response"
 		return C.err_List_Dict_String(C.CString(errStr))
 	}
+
+	defer respBodyDecomp.Close()
 
 	var respBody IdMapResp
 
@@ -313,7 +317,7 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		return C.err_List_Dict_String(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -332,6 +336,8 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 		errStr := "Failed to decompress response"
 		return C.err_List_Dict_String(C.CString(errStr))
 	}
+
+	defer respBodyDecomp.Close()
 
 	var respBody MetadataResp
 
@@ -501,7 +507,7 @@ func query_listings(start, limit, price_min, price_max, market_cap_min, market_c
 		return C.err_List_MarketData(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -515,6 +521,8 @@ func query_listings(start, limit, price_min, price_max, market_cap_min, market_c
 	defer response.Body.Close()
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
+
+	defer respBodyDecomp.Close()
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
@@ -653,7 +661,7 @@ func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_S
 		return C.err_List_Category(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -667,6 +675,8 @@ func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_S
 	defer response.Body.Close()
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
+
+	defer respBodyDecomp.Close()
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
@@ -723,7 +733,6 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 			result = C.err_Optional_CategorySingle(C.CString("go panic"))
 		}
 	}()
-	fmt.Println("------go print start------")
 	u, err := url.Parse(CategoryUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -752,7 +761,7 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 		return C.err_Optional_CategorySingle(C.CString(errStr))
 	}
 
-	req.Header.Set("X-CMC_PRO_API_KEY", ApiKey)
+	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Encoding", "deflate, gzip")
 
@@ -766,6 +775,8 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 	defer response.Body.Close()
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
+
+	defer respBodyDecomp.Close()
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
@@ -798,20 +809,6 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 		last_updated:      C.CString(respData.LastUpdated.String()),
 		coins:             C.new_List_Coin(C.size_t(len(respData.Coins))),
 	})
-	//data := C.CategorySingle{
-	//	id:                C.CString(respData.ID),
-	//	name:              C.CString(respData.Name),
-	//	description:       C.CString(respData.Description),
-	//	num_tokens:        C.Int(respData.NumTokens),
-	//	avg_price_change:  C.Float(respData.AvgPriceChange),
-	//	market_cap:        C.Float(respData.MarketCap),
-	//	market_cap_change: C.Float(respData.MarketCapChange),
-	//	volume:            C.Float(respData.Volume),
-	//	volume_change:     C.Float(respData.VolumeChange),
-	//	last_updated:      C.CString(respData.LastUpdated.String()),
-	//	coins:             C.new_List_Coin(C.size_t(len(respData.Coins))),
-	//}
-
 	coinArr := (*[1 << 30]C.Coin)(unsafe.Pointer(data.value.coins.values))[:data.value.coins.len:data.value.coins.len]
 
 	for i, coin := range respData.Coins {
@@ -860,7 +857,6 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 		}
 
 	}
-	fmt.Println("1111")
 	return C.ok_Optional_CategorySingle(data)
 }
 
