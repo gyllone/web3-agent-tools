@@ -184,10 +184,10 @@ if __name__ == '__main__':
         # result_schema=ParamSchema.from_model_type(MetaOutput),
         # args_schema=ParamSchema.from_model_type(ListingInput),
         # result_schema=ParamSchema.from_model_type(ListingOutput),
-        args_schema=ParamSchema.from_model_type(CategoriesInput),
-        result_schema=ParamSchema.from_model_type(CategoriesOutput),
-        # args_schema=ParamSchema.from_model_type(CategoryInput),
-        # result_schema=ParamSchema.from_model_type(CategoryOutput),
+        # args_schema=ParamSchema.from_model_type(CategoriesInput),
+        # result_schema=ParamSchema.from_model_type(CategoriesOutput),
+        args_schema=ParamSchema.from_model_type(CategoryInput),
+        result_schema=ParamSchema.from_model_type(CategoryOutput),
     )
 
     print("\n===============Running Tool===============\n")
@@ -196,8 +196,8 @@ if __name__ == '__main__':
     # args = IdMapInput(limit=3)
     # args = MetaInput(id="1,3,5")
     # args = ListingInput(limit=5, convert="ETH")
-    args = CategoriesInput(start=-1)
-    # args = CategoryInput(id="605e2ce9d41eae1066535f7c", limit=2, convert_id="1,22")
+    # args = CategoriesInput(start=-1)
+    args = CategoryInput(id="605e2ce9d41eae1066535f7c", limit=2, convert_id="1,22")
 
     resp = schema.run_tool("../../../go-tools/output/crycur.so", args.dict(by_alias=True, exclude_none=True))
 

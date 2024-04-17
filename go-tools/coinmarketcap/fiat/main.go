@@ -17,7 +17,7 @@ import (
 )
 
 //export query_id_map
-func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_metals C.Optional_Bool) (result C.Result_List_Fiat) {
+func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_metals C.Optional_Bool) C.Result_List_Fiat {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -25,7 +25,6 @@ func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_m
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Fiat(C.CString("go panic"))
 		}
 	}()
 
@@ -66,16 +65,14 @@ func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_m
 		errStr := "Failed to send request"
 		return C.err_List_Fiat(C.CString(errStr))
 	}
-
 	defer response.Body.Close()
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
+	defer respBodyDecomp.Close()
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		return C.err_List_Fiat(C.CString(errStr))
 	}
-
-	defer respBodyDecomp.Close()
 
 	var respBody FiatResp
 

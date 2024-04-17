@@ -22,8 +22,7 @@ import (
 // TODO: 使用symbol参数请求的话，返回格式与id和slug不统一，暂不支持
 //
 //export query_quotes
-func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_invalid C.Optional_Bool) (result C.Result_List_List_Float) {
-
+func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_invalid C.Optional_Bool) C.Result_List_List_Float {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -31,7 +30,6 @@ func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_inv
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_List_Float(C.CString("go panic"))
 		}
 	}()
 	idsIsSome := bool(id.is_some)
@@ -84,7 +82,6 @@ func query_quotes(id, slug, convert, convert_id, aux C.Optional_String, skip_inv
 		params.Add("skip_invalid", skipInvalidStr)
 	}
 
-	// 将查询参数添加到 URL 查询字符串中
 	u.RawQuery = params.Encode()
 
 	req, err1 := http.NewRequest("GET", u.String(), nil)
@@ -151,7 +148,7 @@ func query_quotes_release(result C.Result_List_List_Float) {
 }
 
 //export query_id_map
-func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, limit C.Optional_Int) (result C.Result_List_Dict_String) {
+func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, limit C.Optional_Int) C.Result_List_Dict_String {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -159,7 +156,6 @@ func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, li
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Dict_String(C.CString("go panic"))
 		}
 	}()
 	u, err := url.Parse(IdMapUrl)
@@ -265,7 +261,7 @@ func query_id_map_release(result C.Result_List_Dict_String) {
 // TODO: symbol请求与id和slug格式不符，暂未实现
 //
 //export query_metadata
-func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Optional_Bool) (result C.Result_List_Dict_String) {
+func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Optional_Bool) C.Result_List_Dict_String {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -273,7 +269,6 @@ func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Opt
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Dict_String(C.CString("go panic"))
 		}
 	}()
 	idIsSome := bool(id.is_some)
@@ -404,7 +399,7 @@ func parseMetadata(meta Metadata) (keys []string, values []string) {
 }
 
 //export query_listings
-func query_listings(start, limit, price_min, price_max, market_cap_min, market_cap_max, volume_24h_min, volume_24h_max, circulating_supply_min, circulating_supply_max, percent_change_24h_min, percent_change_24h_max C.Optional_Int, convert, convert_id, sort, sort_dir, cryptocurrency_type, tag, aux C.Optional_String) (result C.Result_List_MarketData) {
+func query_listings(start, limit, price_min, price_max, market_cap_min, market_cap_max, volume_24h_min, volume_24h_max, circulating_supply_min, circulating_supply_max, percent_change_24h_min, percent_change_24h_max C.Optional_Int, convert, convert_id, sort, sort_dir, cryptocurrency_type, tag, aux C.Optional_String) C.Result_List_MarketData {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -412,7 +407,6 @@ func query_listings(start, limit, price_min, price_max, market_cap_min, market_c
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_MarketData(C.CString("go panic"))
 		}
 	}()
 	startIsSome := bool(start.is_some)
@@ -619,7 +613,7 @@ func parseMarketQuote(quote Quote) (keys []string, values []string) {
 }
 
 //export query_categories
-func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_String) (result C.Result_List_Category) {
+func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_String) C.Result_List_Category {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -627,7 +621,6 @@ func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_S
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Category(C.CString("go panic"))
 		}
 	}()
 
@@ -722,7 +715,7 @@ func query_categories_release(result C.Result_List_Category) {
 }
 
 //export query_category
-func query_category(id C.String, start, limit C.Optional_Int, convert, convert_id C.Optional_String) (result C.Result_Optional_CategorySingle) {
+func query_category(id C.String, start, limit C.Optional_Int, convert, convert_id C.Optional_String) C.Result_Optional_CategorySingle {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -730,7 +723,6 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_Optional_CategorySingle(C.CString("go panic"))
 		}
 	}()
 	u, err := url.Parse(CategoryUrl)

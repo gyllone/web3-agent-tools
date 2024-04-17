@@ -18,7 +18,7 @@ import (
 )
 
 //export query_id_map
-func query_id_map(start, limit C.Optional_Int, listing_status, slug, sort, aux, crypto_id C.Optional_String) (result C.Result_List_Exchange) {
+func query_id_map(start, limit C.Optional_Int, listing_status, slug, sort, aux, crypto_id C.Optional_String) C.Result_List_Exchange {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -26,7 +26,6 @@ func query_id_map(start, limit C.Optional_Int, listing_status, slug, sort, aux, 
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Exchange(C.CString("go panic"))
 		}
 	}()
 
@@ -126,7 +125,7 @@ func query_id_map_release(result C.Result_List_Exchange) {
 }
 
 //export query_metadata
-func query_metadata(id, slug, aux C.Optional_String) (result C.Result_Dict_Metadata) {
+func query_metadata(id, slug, aux C.Optional_String) C.Result_Dict_Metadata {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -134,7 +133,6 @@ func query_metadata(id, slug, aux C.Optional_String) (result C.Result_Dict_Metad
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_Dict_Metadata(C.CString("go panic"))
 		}
 	}()
 
@@ -276,7 +274,7 @@ func query_metadata_release(result C.Result_Dict_Metadata) {
 }
 
 //export query_exchange_assets
-func query_exchange_assets(id C.String) (result C.Result_List_Asset) {
+func query_exchange_assets(id C.String) C.Result_List_Asset {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("------go print start------")
@@ -284,7 +282,6 @@ func query_exchange_assets(id C.String) (result C.Result_List_Asset) {
 			fmt.Println("Stack trace:")
 			fmt.Println("------go print end------")
 			debug.PrintStack()
-			result = C.err_List_Asset(C.CString("go panic"))
 		}
 	}()
 	u, err := url.Parse(ExchangeAssetsUrl)
