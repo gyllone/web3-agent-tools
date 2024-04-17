@@ -3,18 +3,35 @@ package main
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestRequestKline(t *testing.T) {
 	resp, err := getQuoteKline(&QuoteKlineRequest{
 		Symbol:   "ETHUSDT",
-		Interval: QuoteKlineInterval_1d,
+		Interval: QuoteKlineInterval_1Month,
 	})
 	if err != nil {
 		t.Error(err)
 	}
 	bytes, _ := json.Marshal(resp)
 	t.Logf("%+v\n", string(bytes))
+}
+
+func TestParseKlineTime(t *testing.T) {
+	ts := []string{
+		"2023-04-05T17:45:30+08:00",
+		"2024-04-02T12:04:05",
+		"2024-04-02",
+	}
+	for _, tStr := range ts {
+		value, err := time.Parse(time.RFC3339, tStr)
+		if err != nil {
+			t.Log(err)
+			continue
+		}
+		t.Logf("%+v %s %d\n", value, value.Format(time.RFC3339), value.UnixMilli())
+	}
 }
 
 func TestGetQuoteTicker24hr(t *testing.T) {

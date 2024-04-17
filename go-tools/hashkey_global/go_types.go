@@ -15,8 +15,8 @@ type QuoteKlineRequest struct {
 	Symbol    string         `url:"symbol"`
 	Interval  QuoteKlineENUM `url:"interval"`
 	Limit     *int           `url:"limit"`
-	StartTime *int           `url:"startTime"`
-	EndTime   *int           `url:"endTime"`
+	StartTime *int64         `url:"startTime"`
+	EndTime   *int64         `url:"endTime"`
 }
 
 type QuoteKlinePoint struct {
@@ -131,8 +131,9 @@ type ErrorMsg struct {
 --- auth ------
 */
 type HashKeyApiAuth struct {
-	Secret string
-	ApiKey string
+	AccountId string
+	Secret    string
+	ApiKey    string
 }
 
 /*
@@ -157,12 +158,12 @@ type CreateSpotOrderRequest struct {
 	Symbol   string            `json:"symbol" url:"symbol"`
 	Side     SpotOrderSideEnum `json:"side" url:"side"`
 	Type     SpotOrderTypeEnum `json:"type" url:"type"`
-	Quantity float64           `json:"quantity" url:"quantity"`
-	//Amount           float64           `json:"amount" url:"amount"`
-	Price            float64 `json:"price" url:"price"`
-	NewClientOrderId string  `json:"newClientOrderId" url:"newClientOrderId"`
-	TimeInForce      string  `json:"timeInForce" url:"timeInForce"`
-	Timestamp        int64   `json:"timestamp" url:"timestamp"`
+	Quantity *string           `json:"quantity" url:"quantity,omitempty"`
+	Amount   *string           `json:"amount" url:"amount,omitempty"`
+	Price    *string           `json:"price" url:"price,omitempty"`
+	// NewClientOrderId string `json:"newClientOrderId" url:"newClientOrderId"`
+	// TimeInForce      string `json:"timeInForce" url:"timeInForce"`
+	Timestamp int64 `json:"timestamp" url:"timestamp"`
 }
 
 type CreateSpotOrderResponse struct {

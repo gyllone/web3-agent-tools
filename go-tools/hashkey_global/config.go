@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 // TODO
-var APIEndPoint = "https://api.qa1.bmuxdc.com"
+var APIEndPoint = "https://api-glb.stg.hashkeydev.com"
 
 var API_QUOTE_KLINE string
 var API_QUOTE_TICKER_24HR string

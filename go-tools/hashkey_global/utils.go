@@ -78,3 +78,7 @@ func getDeserializeJsonFunc(ret interface{}) deserializeFunc {
 
 	return deserializeJson
 }
+
+func getPtr[T any](value T) *T {
+	return &value
+}

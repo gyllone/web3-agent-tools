@@ -7,17 +7,50 @@ import (
 )
 
 var testAuth = HashKeyApiAuth{
-	Secret: "4FcFv4f3kIsfpVh2HcL7rES9iLN3nfTubeZvzjb97jXnWpndvvfFLgHIAqrNEJip",
-	ApiKey: "AAyrJfY2VBLYCIBNa8k8kbppXAeBzF1i9Tmz2DawdEbWLzzBjGj0bRKFW0q0F3cd",
+	Secret: "Hy0Y5SkAB5SK28PxniiTxhUsfMImXoh96YcnZcKMtEDznA3oogHyuI9ytLq1oyVd",
+	ApiKey: "gnb0CeMO43AJgkF6OwIaES7bvF0SoJm59mEu2VxsSSjHJgyX3jwYIEcSm4jDYkvd",
 }
 
-func TestCreateSpotOrder(t *testing.T) {
+func TestCreateMakrtBuySpotOrder(t *testing.T) {
 	resp, err := createSpotOrder(&CreateSpotOrderRequest{
-		Symbol:    "BTCUSDT",
-		Side:      "BUY",
-		Type:      SpotOrderTypeEnum_LIMIT,
-		Quantity:  0.0001,
-		Price:     399,
+		Symbol:   "BTCUSDT",
+		Side:     SpotOrderSideEnum_BUY,
+		Type:     SpotOrderTypeEnum_MARKET,
+		Quantity: getPtr("0.01"),
+		//Price:    getPtr("399"),
+		// Amount:    getPtr("10"),
+		Timestamp: time.Now().UnixMilli(),
+	}, &testAuth)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Logf("resp:%+v\n", resp)
+}
+
+func TestCreateMakrtSellSpotOrder(t *testing.T) {
+	resp, err := createSpotOrder(&CreateSpotOrderRequest{
+		Symbol:   "BTCUSDT",
+		Side:     SpotOrderSideEnum_SELL,
+		Type:     SpotOrderTypeEnum_MARKET,
+		Quantity: getPtr("0.01"),
+		//Price:    getPtr("399"),
+		// Amount:    getPtr("10"),
+		Timestamp: time.Now().UnixMilli(),
+	}, &testAuth)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Logf("resp:%+v\n", resp)
+}
+
+func TestCreateLimitSellSpotOrder(t *testing.T) {
+	resp, err := createSpotOrder(&CreateSpotOrderRequest{
+		Symbol:   "BTCUSDT",
+		Side:     SpotOrderSideEnum_SELL,
+		Type:     SpotOrderTypeEnum_LIMIT,
+		Quantity: getPtr("0.01"),
+		Price:    getPtr("399"),
+		// Amount:    getPtr("10"),
 		Timestamp: time.Now().UnixMilli(),
 	}, &testAuth)
 	if err != nil {

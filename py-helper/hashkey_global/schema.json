@@ -1,0 +1,251 @@
+[{
+  "name": "get_spot_trade_account_balance",
+  "description": "get hashkey spot trade account balance",
+  "args_schema": {
+    "properties": {
+      "ApiKey": {
+        "description": "api key of hashkey global exchange",
+        "type": "string"
+      },
+      "ApiSignKey": {
+        "description": "api sign key of hashkey global exchange",
+        "type": "string"
+      }
+    },
+    "required": [
+      "ApiKey",
+      "ApiSignKey"
+    ]
+  },
+  "result_schema": {
+    "properties": {
+      "status": {
+        "description": "status",
+        "type": "boolean"
+      },
+      "error": {
+        "description": "error",
+        "type": "string"
+      },
+      "result": {
+        "description": "list of user's virtual asset balance in spot trade account of hashkey global exchange",
+        "type": "array",
+        "items": {
+          "ref": "#/definitions/Balance"
+        }
+      }
+    },
+    "required": [
+      "status",
+      "error",
+      "result"
+    ],
+    "definitions": {
+      "Balance": {
+        "properties": {
+          "Asset": {
+            "description": "virtual asset name, like BTC, ETH",
+            "type": "string"
+          },
+          "Total": {
+            "description": "virtual asset total balance",
+            "type": "string"
+          },
+          "Free": {
+            "description": "virtual asset available amount",
+            "type": "string"
+          }
+        },
+        "required": [
+          "Asset",
+          "Total",
+          "Free"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*querying balance from hashkey...*\n"
+  }
+},
+{
+  "name": "create_spot_market_order",
+  "description": "create spot order to hashkey global exchange by market price",
+  "args_schema": {
+    "properties": {
+      "ApiKey": {
+        "type": "string"
+      },
+      "Secret": {
+        "type": "string"
+      },
+      "Symbol": {
+        "type": "string"
+      },
+      "Side": {
+        "type": "string"
+      },
+      "Quantity": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "ApiKey",
+      "Secret",
+      "Symbol",
+      "Side",
+      "Quantity"
+    ]
+  },
+  "result_schema": {
+    "properties": {
+      "status": {
+        "description": "status",
+        "type": "boolean"
+      },
+      "error": {
+        "description": "error",
+        "type": "string"
+      },
+      "result": {
+        "description": "spot order",
+        "allOf": [
+          {
+            "ref": "#/definitions/SpotOrder"
+          }
+        ]
+      }
+    },
+    "required": [
+      "status",
+      "error",
+      "result"
+    ],
+    "definitions": {
+      "SpotOrder": {
+        "properties": {
+          "orderId": {
+            "description": "orderid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*creating spot order with market price to hashkey...*\n"
+  }
+},
+{
+  "name": "get_kline",
+  "description": "query kline",
+  "args_schema": {
+    "properties": {
+      "Symbol": {
+        "description": "trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency",
+        "type": "string"
+      },
+      "Interval": {
+        "description": "time interval of candlestick chart interval.\n                         m for minutes; h for hours; d for days; w for weeks; M for months; \n                        available values are [3m,5m,15m,30m,1h,2h,4h,6h,8h,12h,1d,1w,1M]",
+        "type": "string"
+      },
+      "StartTime": {
+        "description": "start time of kline chart in RFC3339 format, format like 2023-04-05T17:45:30+08:00",
+        "type": "string"
+      },
+      "EndTime": {
+        "description": "end time of kline chart in RFC3339 format, e.g. 2023-04-05T17:45:30+08:00",
+        "type": "string"
+      },
+      "Limit": {
+        "description": "Return the number of bars, the maximum value and defaut value is 1000",
+        "type": "string"
+      }
+    },
+    "required": [
+      "Symbol",
+      "Interval"
+    ]
+  },
+  "result_schema": {
+    "properties": {
+      "status": {
+        "description": "status",
+        "type": "boolean"
+      },
+      "error": {
+        "description": "error",
+        "type": "string"
+      },
+      "result": {
+        "description": "list of kline bars",
+        "type": "array",
+        "items": {
+          "ref": "#/definitions/Kline"
+        }
+      }
+    },
+    "required": [
+      "status",
+      "error",
+      "result"
+    ],
+    "definitions": {
+      "Kline": {
+        "properties": {
+          "t": {
+            "description": "open timestamp of Timestamp",
+            "type": "integer"
+          },
+          "s": {
+            "description": "symbol",
+            "type": "string"
+          },
+          "sn": {
+            "description": "symbol name",
+            "type": "string"
+          },
+          "o": {
+            "description": "opening price",
+            "type": "string"
+          },
+          "c": {
+            "description": "closing price",
+            "type": "string"
+          },
+          "h": {
+            "description": "highest price",
+            "type": "string"
+          },
+          "l": {
+            "description": "lowest price",
+            "type": "string"
+          },
+          "v": {
+            "description": "volume",
+            "type": "string"
+          }
+        },
+        "required": [
+          "t",
+          "s",
+          "sn",
+          "o",
+          "c",
+          "h",
+          "l",
+          "v"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*querying kline from hashkey...*\n"
+  }
+}]
