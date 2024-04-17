@@ -37,9 +37,8 @@ DEFINE_RESULT(List_Order)
 
 // Kline
 typedef struct {
-    Int Timestamp;
+    String Timestamp;
     String Symbol;
-    String SymbolName;
     String OpeningPrice;
     String ClosingPrice;
     String HighestPrice;

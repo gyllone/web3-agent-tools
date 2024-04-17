@@ -95,9 +95,8 @@ func get_kline(Symbol C.String, Interval C.String, StartTime C.Optional_String, 
 	itemsSlice := (*[1 << 30]C.Kline)(unsafe.Pointer(klines.values))
 	for i, item := range resp {
 		itemsSlice[i] = C.Kline{
-			Timestamp:    C.Int(item.OpenTime),
+			Timestamp:    C.CString(time.UnixMilli(item.OpenTime).Format(time.RFC3339)),
 			Symbol:       C.CString(req.Symbol),
-			SymbolName:   C.CString(req.Symbol),
 			OpeningPrice: C.CString(item.OpenPrice),
 			ClosingPrice: C.CString(item.ClosePrice),
 			HighestPrice: C.CString(item.HighPrice),

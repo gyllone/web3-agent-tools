@@ -34,14 +34,13 @@ class CreateSpotMarketOrderResult(BaseModel):
     result: SpotOrder = Field(description="spot order")
 
 class Kline(BaseModel):
-    t:int=Field(description="open timestamp of Timestamp")
+    t: str=Field(description="open timestamp of Timestamp in RFC3339 format")
     s: str=Field(description="symbol")
-    sn: str = Field(description="symbol name")
     o: str = Field(description="opening price")
     c: str = Field(description="closing price")
     h: str = Field(description="highest price")
     l: str = Field(description="lowest price")
-    v: str = Field(description="volume")
+    v: str = Field(description="traded volume")
     
 
 class GetKlineArgs(BaseModel):

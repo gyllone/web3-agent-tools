@@ -199,15 +199,11 @@
       "Kline": {
         "properties": {
           "t": {
-            "description": "open timestamp of Timestamp",
-            "type": "integer"
+            "description": "open timestamp of Timestamp in RFC3339 format",
+            "type": "string"
           },
           "s": {
             "description": "symbol",
-            "type": "string"
-          },
-          "sn": {
-            "description": "symbol name",
             "type": "string"
           },
           "o": {
@@ -227,14 +223,13 @@
             "type": "string"
           },
           "v": {
-            "description": "volume",
+            "description": "traded volume",
             "type": "string"
           }
         },
         "required": [
           "t",
           "s",
-          "sn",
           "o",
           "c",
           "h",

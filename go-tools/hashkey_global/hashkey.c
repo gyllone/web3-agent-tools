@@ -29,9 +29,8 @@ IMPL_RESULT(List_Order)
 
 // kline
 void release_Kline(Kline kline) {
-    //free(kline.Timestamp);
+    free(kline.Timestamp);
     free(kline.Symbol);
-    free(kline.SymbolName);
     free(kline.OpeningPrice);
     free(kline.ClosingPrice);
     free(kline.HighestPrice);

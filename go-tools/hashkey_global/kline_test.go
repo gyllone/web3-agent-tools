@@ -9,7 +9,8 @@ import (
 func TestRequestKline(t *testing.T) {
 	resp, err := getQuoteKline(&QuoteKlineRequest{
 		Symbol:   "ETHUSDT",
-		Interval: QuoteKlineInterval_1Month,
+		Interval: QuoteKlineInterval_1d,
+		Limit:    getPtr(1),
 	})
 	if err != nil {
 		t.Error(err)
