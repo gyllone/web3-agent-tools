@@ -47,11 +47,11 @@ schemas = [
     }, {
         "schema": ToolSchema(
             name="get_kline",
-            description="query kline",
+            description="query kline data of specific syboml from hashkey global exchange",
             args_schema=ParamSchema.from_model_type(GetKlineArgs),
             result_schema=ParamSchema.from_model_type(GetKlineResult),
             metadata={
-                "annotation": "*querying kline from hashkey...*\n"
+               "output_tag":"kline"
             }
         ),
         "case":GetKlineArgs(
