@@ -1,9 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bwmarrin/snowflake"
 )
 
 var testAuth = HashKeyApiAuth{
@@ -57,6 +60,44 @@ func TestCreateLimitSellSpotOrder(t *testing.T) {
 		t.Log(err)
 	}
 	t.Logf("resp:%+v\n", resp)
+}
+
+func TestCreateMultiSpotOrder(t *testing.T) {
+	node, _ := snowflake.NewNode(1)
+	resp, err := createMultiSpotOrder(&CreateMultiSpotOrderRequest{
+		Timestamp: time.Now().UnixMilli(),
+		Orders: []*BatchSpotOrderItem{
+			&BatchSpotOrderItem{
+				Symbol:        "BTCUSDT",
+				Side:          "BUY",
+				Type:          SpotOrderTypeEnum_LIMIT,
+				Quantity:      getPtr("0.001"),
+				Price:         getPtr("7001"),
+				ClientOrderId: node.Generate().String(),
+			},
+			&BatchSpotOrderItem{
+				Symbol:        "BTCUSDT",
+				Side:          "BUY",
+				Type:          SpotOrderTypeEnum_LIMIT,
+				Quantity:      getPtr("0.001"),
+				Price:         getPtr("7002"),
+				ClientOrderId: node.Generate().String(),
+			},
+			&BatchSpotOrderItem{
+				Symbol:        "AAS",
+				Side:          "BUY",
+				Type:          SpotOrderTypeEnum_LIMIT,
+				Quantity:      getPtr("0.001"),
+				Price:         getPtr("10"),
+				ClientOrderId: node.Generate().String(),
+			},
+		},
+	}, &testAuth)
+	if err != nil {
+		t.Log(err)
+	}
+	res, _ := json.Marshal(resp)
+	t.Logf("resp:%+v\n", string(res))
 }
 
 func TestQuerySplotOrder(t *testing.T) {

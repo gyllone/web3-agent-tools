@@ -14,6 +14,7 @@ var API_QUOTE_TICKER_PRICE string
 var API_QUOTE_DEPTH string
 
 var API_SPOT_ORDER string
+var API_BATCH_SPOT_ORDER string
 var API_SPOT_OPENORDERS string
 var API_SPOT_CANCEL_ORDER_BY_IDS string
 var API_SPOT_TRADED_ORDERS string
@@ -36,6 +37,7 @@ func init() {
 	API_QUOTE_TICKER_PRICE = fmt.Sprintf("%s/quote/v1/ticker/price", APIEndPoint)
 
 	API_SPOT_ORDER = fmt.Sprintf("%s/api/v1/spot/order", APIEndPoint)
+	API_BATCH_SPOT_ORDER = fmt.Sprintf("%s/api/v1/spot/batchOrders", APIEndPoint)
 	API_SPOT_OPENORDERS = fmt.Sprintf("%s/api/v1/spot/openOrders", APIEndPoint)
 	API_SPOT_CANCEL_ORDER_BY_IDS = fmt.Sprintf("%s/api/v1/spot/cancelOrderByIds", APIEndPoint)
 	API_SPOT_TRADED_ORDERS = fmt.Sprintf("%s/api/v1/spot/tradeOrders", APIEndPoint)

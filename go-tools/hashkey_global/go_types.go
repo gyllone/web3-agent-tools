@@ -184,6 +184,33 @@ type CreateSpotOrderResponse struct {
 	Concentration string            `json:"concentration" url:"concentration"`
 }
 
+// create multi spot orders
+type CreateMultiSpotOrderRequest struct {
+	Timestamp int64                 `url:"timestamp"`
+	Orders    []*BatchSpotOrderItem `url:"-"`
+}
+
+type SpotOrderResult struct {
+	Code      string `json:"code"`
+	SpotOrder *Order `json:"order"`
+}
+
+// use for multi order
+type BatchSpotOrderItem struct {
+	Symbol        string            `json:"symbol" url:"symbol"`
+	Side          SpotOrderSideEnum `json:"side" url:"side"`
+	Type          SpotOrderTypeEnum `json:"type" url:"type"`
+	Quantity      *string           `json:"quantity,omitempty" url:"quantity,omitempty"`
+	Amount        *string           `json:"amount,omitempty" url:"amount,omitempty"`
+	Price         *string           `json:"price,omitempty" url:"price,omitempty"`
+	ClientOrderId string            `json:"newClientOrderId,omitempty"`
+}
+
+type CreateMultiSpotOrderResponse struct {
+	Code    int                `json:"code"`
+	Results []*SpotOrderResult `json:"result"`
+}
+
 // cancel order
 type CancelOrderRequest struct {
 	OrderId       int64  `url:"orderId"`
