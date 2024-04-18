@@ -59,6 +59,7 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 	client := &http.Client{}
 	response, err2 := client.Do(req)
 	defer response.Body.Close()
+
 	if err2 != nil {
 		errStr := "Failed to send request"
 		fmt.Println("go print", errStr)
@@ -67,6 +68,7 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
 	defer respBodyDecomp.Close()
+
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		fmt.Println("go print", errStr)
@@ -112,16 +114,25 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 		derivatives_volume_24h:              C.Float(respData.DerivativesVolume24h),
 		derivatives_volume_24h_reported:     C.Float(respData.DerivativesVolume24hReported),
 		derivatives_24h_percentage_change:   C.Float(respData.Derivatives24hPercentageChange),
-		quote:                               C.new_Dict_Quote(C.size_t(len(respData.Quote))),
+		quote:                               getCQuoteDict(respData.Quote),
 		last_updated:                        C.CString(respData.LastUpdated.String()),
 	})
 
-	quoteKeyArr := (*[1 << 30]C.String)(unsafe.Pointer(data.value.quote.keys))[:data.value.quote.len:data.value.quote.len]
-	quoteValueArr := (*[1 << 30]C.Quote)(unsafe.Pointer(data.value.quote.values))[:data.value.quote.len:data.value.quote.len]
+	return C.ok_Optional_Metric(data)
+}
+
+func getCQuoteDict(quotes map[string]Quote) C.Dict_Quote {
+	res := C.new_Dict_Quote(C.size_t(len(quotes)))
+
+	if res.len == 0 {
+		return res
+	}
+	quoteKeyArr := (*[1 << 30]C.String)(unsafe.Pointer(res.keys))[:res.len:res.len]
+	quoteValueArr := (*[1 << 30]C.Quote)(unsafe.Pointer(res.values))[:res.len:res.len]
 
 	quoteIdx := 0
 
-	for key, value := range respData.Quote {
+	for key, value := range quotes {
 		quoteKeyArr[quoteIdx] = C.CString(key)
 		quoteValueArr[quoteIdx] = C.Quote{
 			total_market_cap:                             C.Float(value.TotalMarketCap),
@@ -149,12 +160,13 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 		}
 		quoteIdx++
 	}
-	fmt.Println("1111")
-	return C.ok_Optional_Metric(data)
+
+	return res
 }
 
 //export query_quotes_latest_release
 func query_quotes_latest_release(result C.Result_Optional_Metric) {
+	fmt.Println("123")
 	C.release_Result_Optional_Metric(result)
 }
 

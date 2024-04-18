@@ -89,6 +89,10 @@ func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_m
 	respData := respBody.Data
 
 	data := C.new_List_Fiat(C.size_t(len(respData)))
+
+	if data.len == 0 {
+		return C.ok_List_Fiat(data)
+	}
 	fiatArr := (*[1 << 30]C.Fiat)(unsafe.Pointer(data.values))[:data.len:data.len]
 
 	for i, fiat := range respData {

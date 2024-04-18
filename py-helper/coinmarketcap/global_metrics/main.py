@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
     print("\n===============Running Tool===============\n")
 
-    args = QuoteInput(convert="USD,ETH")
+    args = QuoteInput(convert="USD")
 
     resp = schema.run_tool("../../../go-tools/output/global_metrics.so", args.dict(by_alias=True, exclude_none=True))
 

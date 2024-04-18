@@ -101,6 +101,10 @@ func query_id_map(start, limit C.Optional_Int, listing_status, slug, sort, aux, 
 	respData := respBody.Data
 
 	data := C.new_List_Exchange(C.size_t(len(respData)))
+
+	if data.len == 0 {
+		return C.ok_List_Exchange(data)
+	}
 	exchangeArr := (*[1 << 30]C.Exchange)(unsafe.Pointer(data.values))[:data.len:data.len]
 
 	for i, exchange := range respData {
@@ -203,6 +207,9 @@ func query_metadata(id, slug, aux C.Optional_String) C.Result_Dict_Metadata {
 
 	data := C.new_Dict_Metadata(C.size_t(len(respData)))
 
+	if data.len == 0 {
+		return C.ok_Dict_Metadata(data)
+	}
 	dataKeyArr := (*[1 << 30]C.String)(unsafe.Pointer(data.keys))[:data.len:data.len]
 	dataValueArr := (*[1 << 30]C.Metadata)(unsafe.Pointer(data.values))[:data.len:data.len]
 
@@ -234,6 +241,9 @@ func query_metadata(id, slug, aux C.Optional_String) C.Result_Dict_Metadata {
 func getMetadataFiats(fiats []string) C.List_String {
 	res := C.new_List_String(C.size_t(len(fiats)))
 
+	if res.len == 0 {
+		return res
+	}
 	resArr := (*[1 << 30]C.String)(unsafe.Pointer(res.values))[:res.len:res.len]
 
 	for i, fiat := range fiats {
@@ -338,6 +348,9 @@ func query_exchange_assets(id C.String) C.Result_List_Asset {
 
 	data := C.new_List_Asset(C.size_t(len(respData)))
 
+	if data.len == 0 {
+		return C.ok_List_Asset(data)
+	}
 	assetArr := (*[1 << 30]C.Asset)(unsafe.Pointer(data.values))[:data.len:data.len]
 
 	for i, asset := range respData {

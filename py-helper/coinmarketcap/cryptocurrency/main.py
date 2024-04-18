@@ -3,7 +3,21 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from libs.tool import ToolSchema, ParamSchema
+from libs.schema import ParamSchema
+from libs.tool import ToolSchema
+
+
+class Result(BaseModel):
+    status: bool = Field(description="is_fail")
+    error: str = Field(description="error_message")
+
+
+class Platform(BaseModel):
+    id: int
+    name: str
+    symbol: str
+    slug: str
+    token_address: str
 
 
 class IdMapInput(BaseModel):
@@ -15,26 +29,78 @@ class IdMapInput(BaseModel):
     limit: Optional[int] = Field(description="limit")
 
 
-class Result(BaseModel):
-    status: bool = Field(description="is_fail")
-    error: str = Field(description="error_message")
+class Cryptocurrency(BaseModel):
+    id: int
+    rank: int
+    name: str
+    symbol: str
+    slug: str
+    is_active: int
+    first_historical_data: str
+    last_historical_data: str
+    platform: Optional[Platform]
 
 
 class IdMapOutput(Result):
-    value: list[dict[str, str]] = Field(description="idMaps")
+    value: list[Cryptocurrency] = Field(description="idMaps")
+
+
+class Quote(BaseModel):
+    last_updated: str
+    price: float
+    volume_24h: float
+    percent_change_1h: float
+    percent_change_24h: float
+    percent_change_7d: float
+    percent_change_30d: float
+    percent_change_60d: float
+    percent_change_90d: float
+    market_cap: float
+    market_cap_dominance: float
+    fully_diluted_market_cap: float
+    tvl: float
+
+
+class Tag(BaseModel):
+    slug: str
+    name: str
+    category: str
+
+
+class QuoteData(BaseModel):
+    id: int
+    name: str
+    symbol: str
+    slug: str
+    num_market_pairs: int
+    date_added: str
+    tags: list[Tag]
+    max_supply: float
+    circulating_supply: float
+    total_supply: float
+    is_active: int
+    infinite_supply: bool
+    platform: Optional[Platform]
+    cmc_rank: int
+    is_fiat: int
+    self_reported_circulating_supply: float
+    self_reported_market_cap: float
+    tvl_ratio: float
+    last_updated: str
+    quote: dict[str, Quote]
 
 
 class QuoteInput(BaseModel):
-    id: Optional[str] = Field(None)
-    slug: Optional[str] = Field(None)
-    convert: Optional[str] = Field(None)
-    convert_id: Optional[str] = Field(None)
-    aux: Optional[str] = Field(None)
-    skip_invalid: Optional[bool] = Field(None)
+    id: Optional[str]
+    slug: Optional[str]
+    convert: Optional[str]
+    convert_id: Optional[str]
+    aux: Optional[str]
+    skip_invalid: Optional[bool]
 
 
 class QuoteOutput(Result):
-    value: list[list[float]] = Field(description="quotes")
+    value: dict[str, QuoteData] = Field(description="quotes")
 
 
 class MetaInput(BaseModel):
@@ -45,8 +111,45 @@ class MetaInput(BaseModel):
     skip_invalid: Optional[bool]
 
 
+class URLs(BaseModel):
+    website: list[str]
+    twitter: list[str]
+    message_board: list[str]
+    chat: list[str]
+    facebook: list[str]
+    explorer: list[str]
+    reddit: list[str]
+    technical_doc: list[str]
+    source_code: list[str]
+    announcement: list[str]
+
+
+class Metadata(BaseModel):
+    id: int
+    name: str
+    symbol: str
+    category: str
+    description: str
+    slug: str
+    logo: str
+    subreddit: str
+    notice: str
+    tags: list[str]
+    tag_names: list[str]
+    tag_groups: list[str]
+    urls: URLs
+    platform: Optional[Platform]
+    date_added: str
+    twitter_username: str
+    is_hidden: int
+    date_launched: str
+    self_reported_circulating_supply: float
+    self_reported_market_cap: float
+    infinite_supply: bool
+
+
 class MetaOutput(Result):
-    value: list[dict[str, str]] = Field(description="metas")
+    value: dict[str, Metadata] = Field(description="metas")
 
 
 class ListingInput(BaseModel):
@@ -72,8 +175,24 @@ class ListingInput(BaseModel):
 
 
 class Market(BaseModel):
-    metadata: dict[str, str]
-    quotes: dict[str, dict[str, str]]
+    id: int
+    name: str
+    symbol: str
+    slug: str
+    num_market_pairs: int
+    date_added: str
+    tags: list[str]
+    max_supply: int
+    circulating_supply: int
+    total_supply: int
+    infinite_supply: bool
+    platform: Optional[Platform]
+    cmc_rank: int
+    self_reported_circulating_supply: float
+    self_reported_market_cap: float
+    tvl_ratio: float
+    last_updated: str
+    quote: dict[str, Quote]
 
 
 class ListingOutput(Result):
@@ -113,23 +232,6 @@ class CategoryInput(BaseModel):
     convert_id: Optional[str]
 
 
-class Quote(BaseModel):
-    price: float
-    volume_24h: float
-    volume_change_24h: float
-    percent_change_1h: float
-    percent_change_24h: float
-    percent_change_7d: float
-    percent_change_30d: float
-    percent_change_60d: float
-    percent_change_90d: float
-    market_cap: float
-    market_cap_dominance: float
-    fully_diluted_market_cap: float
-    tvl: float
-    last_updated: str
-
-
 class Coin(BaseModel):
     id: int
     name: str
@@ -137,7 +239,7 @@ class Coin(BaseModel):
     slug: str
     num_market_pairs: int
     date_added: str
-    tags: str
+    tags: list[str]
     max_supply: int
     circulating_supply: int
     total_supply: int
@@ -170,10 +272,11 @@ class CategoryOutput(Result):
 
 if __name__ == '__main__':
     schema = ToolSchema(
-        # name="query_quotes",
+        # name="query_quotes_latest",
         # name="query_id_map",
-        # name="query_metadata"
+        # name="query_metadata",
         # name="query_listings",
+        # name="query_categories",
         name="query_category",
         description="This is a test",
         # args_schema=ParamSchema.from_model_type(QuoteInput),
@@ -192,12 +295,12 @@ if __name__ == '__main__':
 
     print("\n===============Running Tool===============\n")
 
-    # args = QuoteInput(id="1,3,5")
-    # args = IdMapInput(limit=3)
-    # args = MetaInput(id="1,3,5")
-    # args = ListingInput(limit=5, convert="ETH")
+    # args = QuoteInput(id="2703")
+    # args = IdMapInput(start=10, limit=2)
+    # args = MetaInput(id="-1")
+    # args = ListingInput(limit=5, convert="ETH,USD")
     # args = CategoriesInput(start=-1)
-    args = CategoryInput(id="605e2ce9d41eae1066535f7c", limit=2, convert_id="1,22")
+    args = CategoryInput(id="605e2ce9d41eae1066535f7c", limit=2)
 
     resp = schema.run_tool("../../../go-tools/output/crycur.so", args.dict(by_alias=True, exclude_none=True))
 
