@@ -75,18 +75,27 @@
   "args_schema": {
     "properties": {
       "ApiKey": {
+        "description": "api key of hashkey global exchange",
         "type": "string"
       },
       "Secret": {
+        "description": "api sign key of hashkey global exchange",
         "type": "string"
       },
       "Symbol": {
+        "description": "trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency",
         "type": "string"
       },
       "Side": {
+        "description": "'BUY' or 'SELL' in plain text",
+        "type": "string"
+      },
+      "Price": {
+        "description": "specific value at which a trader is willing to buy or sell a particular cryptocurrency pair.",
         "type": "string"
       },
       "Quantity": {
+        "description": "quantity of base asset of symbol, e.g. quantity of BTCUSDT means quantity BTC to trade",
         "type": "string"
       }
     },
@@ -95,6 +104,7 @@
       "Secret",
       "Symbol",
       "Side",
+      "Price",
       "Quantity"
     ]
   },
@@ -110,11 +120,10 @@
       },
       "result": {
         "description": "spot order",
-        "allOf": [
-          {
-            "ref": "#/definitions/SpotOrder"
-          }
-        ]
+        "type": "array",
+        "items": {
+          "ref": "#/definitions/SpotOrder"
+        }
       }
     },
     "required": [
@@ -128,10 +137,151 @@
           "orderId": {
             "description": "orderid",
             "type": "string"
+          },
+          "SymbolName": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "TransactTime": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "Price": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "Status": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "OrigQty": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "ExecutedQty": {
+            "description": "orderid",
+            "type": "string"
           }
         },
         "required": [
-          "orderId"
+          "orderId",
+          "SymbolName",
+          "TransactTime",
+          "Price",
+          "Status",
+          "OrigQty",
+          "ExecutedQty"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {
+    "annotation": "*creating spot order with market price to hashkey...*\n"
+  }
+},
+{
+  "name": "create_spot_limit_order",
+  "description": "create spot order to hashkey global exchange by given limit price",
+  "args_schema": {
+    "properties": {
+      "ApiKey": {
+        "description": "api key of hashkey global exchange",
+        "type": "string"
+      },
+      "Secret": {
+        "description": "api sign key of hashkey global exchange",
+        "type": "string"
+      },
+      "Symbol": {
+        "description": "trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency",
+        "type": "string"
+      },
+      "Side": {
+        "description": "'BUY' or 'SELL' in plain text",
+        "type": "string"
+      },
+      "Price": {
+        "description": "specific value at which a trader is willing to buy or sell a particular cryptocurrency pair.",
+        "type": "string"
+      },
+      "Quantity": {
+        "description": "quantity of base asset of symbol, e.g. quantity of BTCUSDT means quantity BTC to trade",
+        "type": "string"
+      }
+    },
+    "required": [
+      "ApiKey",
+      "Secret",
+      "Symbol",
+      "Side",
+      "Price",
+      "Quantity"
+    ]
+  },
+  "result_schema": {
+    "properties": {
+      "status": {
+        "description": "status",
+        "type": "boolean"
+      },
+      "error": {
+        "description": "error",
+        "type": "string"
+      },
+      "result": {
+        "description": "spot order",
+        "type": "array",
+        "items": {
+          "ref": "#/definitions/SpotOrder"
+        }
+      }
+    },
+    "required": [
+      "status",
+      "error",
+      "result"
+    ],
+    "definitions": {
+      "SpotOrder": {
+        "properties": {
+          "orderId": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "SymbolName": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "TransactTime": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "Price": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "Status": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "OrigQty": {
+            "description": "orderid",
+            "type": "string"
+          },
+          "ExecutedQty": {
+            "description": "orderid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "orderId",
+          "SymbolName",
+          "TransactTime",
+          "Price",
+          "Status",
+          "OrigQty",
+          "ExecutedQty"
         ]
       }
     }
@@ -243,4 +393,63 @@
   "metadata": {
     "output_tag": "kline"
   }
+},
+{
+  "name": "get_latest_price",
+  "description": "get latest price of specific syboml",
+  "args_schema": {
+    "properties": {
+      "Symbol": {
+        "description": "trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency",
+        "type": "string"
+      }
+    },
+    "required": [
+      "Symbol"
+    ]
+  },
+  "result_schema": {
+    "properties": {
+      "status": {
+        "description": "status",
+        "type": "boolean"
+      },
+      "error": {
+        "description": "error",
+        "type": "string"
+      },
+      "result": {
+        "description": "latest price",
+        "type": "array",
+        "items": {
+          "ref": "#/definitions/Price"
+        }
+      }
+    },
+    "required": [
+      "status",
+      "error",
+      "result"
+    ],
+    "definitions": {
+      "Price": {
+        "properties": {
+          "symbol": {
+            "description": "trading pair of crypto, like BTCUSDT",
+            "type": "string"
+          },
+          "price": {
+            "description": "price",
+            "type": "string"
+          }
+        },
+        "required": [
+          "symbol",
+          "price"
+        ]
+      }
+    }
+  },
+  "return_direct": false,
+  "metadata": {}
 }]

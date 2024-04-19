@@ -30,7 +30,7 @@ schemas = [
         "schema": ToolSchema(
             name="create_spot_market_order",
             description="create spot order to hashkey global exchange by market price",
-            args_schema=ParamSchema.from_model_type(CreateSpotMarketOrderArgs),
+            args_schema=ParamSchema.from_model_type(CreateSpotLimitOrderArgs),
             result_schema=ParamSchema.from_model_type(CreateSpotMarketOrderResult),
             metadata={
                 "annotation": "*creating spot order with market price to hashkey...*\n"
@@ -44,7 +44,28 @@ schemas = [
         #     Side="BUY",
         #     Quantity="0.0001"
         # )
-    }, {
+    }, 
+     {    
+        "schema": ToolSchema(
+            name="create_spot_limit_order",
+            description="create spot order to hashkey global exchange by given limit price",
+            args_schema=ParamSchema.from_model_type(CreateSpotLimitOrderArgs),
+            result_schema=ParamSchema.from_model_type(CreateSpotMarketOrderResult),
+            metadata={
+                "annotation": "*creating spot order with market price to hashkey...*\n"
+            }
+        ),
+        "case":None
+        # "case": CreateSpotLimitOrderArgs(
+        #     ApiKey=ApiKey,
+        #     Secret=Secret,
+        #     Symbol="BTCUSDT",
+        #     Side="BUY",
+        #     Quantity="0.01",
+        #     Price="7200"
+        # )
+    },   
+    {
         "schema": ToolSchema(
             name="get_kline",
             description="query kline data of specific syboml from hashkey global exchange",
@@ -58,6 +79,20 @@ schemas = [
             Symbol="BTCUSDT",
             Interval="15m",
             Limit=5
+        )
+    },
+    {
+        "schema": ToolSchema(
+            name="get_latest_price",
+            description="get latest price of specific syboml",
+            args_schema=ParamSchema.from_model_type(GetLatestPriceArgs),
+            result_schema=ParamSchema.from_model_type(GetLatestPriceResult),
+            metadata={
+            }
+        ),
+        #"case":None
+        "case":GetLatestPriceArgs(
+            Symbol="BTCUSDT"
         )
     }
 

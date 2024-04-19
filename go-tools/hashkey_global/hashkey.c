@@ -24,8 +24,10 @@ void release_Order(Order order) {
 
 }
 IMPL_LIST(Order)
-IMPL_RESULT(Order)
+IMPL_OPTIONAL(Order)
+IMPL_RESULT(Optional_Order)
 IMPL_RESULT(List_Order)
+IMPL_RESULT(Order)
 
 // kline
 void release_Kline(Kline kline) {
@@ -40,5 +42,12 @@ void release_Kline(Kline kline) {
 IMPL_LIST(Kline)
 IMPL_RESULT(List_Kline)
 
+// price
+void release_Price(Price price) {
+    free(price.Symbol);
+    free(price.Price);
 
+}
+IMPL_LIST(Price)
+IMPL_RESULT(List_Price)
 

@@ -20,18 +20,33 @@ class GetTradeAccountBalanceResult(BaseModel):
 
 class SpotOrder(BaseModel):
     orderId: str = Field(description="orderid")
+    SymbolName: str = Field(description="orderid")
+    TransactTime: str = Field(description="orderid")
+    Price: str = Field(description="orderid")
+    Status: str = Field(description="orderid")
+    OrigQty: str = Field(description="orderid")
+    ExecutedQty: str = Field(description="orderid")
+
+class CreateSpotLimitOrderArgs(BaseModel):
+    ApiKey: str=Field(description="api key of hashkey global exchange")
+    Secret: str=Field(description="api sign key of hashkey global exchange")
+    Symbol:str=Field(description="trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency")
+    Side: str=Field(description="'BUY' or 'SELL' in plain text")
+    Price: str=Field(description="specific value at which a trader is willing to buy or sell a particular cryptocurrency pair.")
+    Quantity: str=Field(description="quantity of base asset of symbol, e.g. quantity of BTCUSDT means quantity BTC to trade")
+    
 
 class CreateSpotMarketOrderArgs(BaseModel):
-    ApiKey: str=Field(description="")
-    Secret: str=Field(description="")
-    Symbol: str=Field(description="")
-    Side: str=Field(description="")
-    Quantity: str=Field(description="")
+    ApiKey: str=Field(description="api key of hashkey global exchange")
+    Secret: str=Field(description="api sign key of hashkey global exchange")
+    Symbol: str=Field(description="trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency")
+    Side: str=Field(description="'BUY' or 'SELL' in plain text")
+    Quantity: str=Field(description="quantity of base asset of symbol, e.g. quantity of BTCUSDT means quantity BTC to trade")
 
 class CreateSpotMarketOrderResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    result: SpotOrder = Field(description="spot order")
+    result: list[SpotOrder] = Field(description="spot order")
 
 class Kline(BaseModel):
     t: str=Field(description="open timestamp of Timestamp in RFC3339 format")
@@ -56,3 +71,16 @@ class GetKlineResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
     result: list[Kline] = Field(description="list of kline bars")
+
+class Price(BaseModel):
+    symbol:str = Field(description="trading pair of crypto, like BTCUSDT")
+    price: str = Field(description="price")
+
+class GetLatestPriceArgs(BaseModel):
+    Symbol: str=Field(description="trading pair of crypto, like BTCUSDT means BTC as base currency and USDT as quote currency")
+
+class GetLatestPriceResult(BaseModel):
+    status: bool = Field(description="status")
+    error: str = Field(description="error")
+    result: list[Price]=Field(description="latest price")
+    

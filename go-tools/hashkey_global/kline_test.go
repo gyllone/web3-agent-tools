@@ -83,7 +83,7 @@ func TestGetQuoteBookTicker(t *testing.T) {
 
 func TestGetQuoteTickerPrice(t *testing.T) {
 	resp, err := getQuoteTickerPrice(&QuoteTickerPriceRequest{
-		Symbol: "BTCUSDT",
+		//Symbol: "BTCUSDT",
 	})
 	if err != nil {
 		t.Error(err)
@@ -92,6 +92,16 @@ func TestGetQuoteTickerPrice(t *testing.T) {
 	t.Logf("%+v\n", string(bytes))
 }
 
+func TestGetSpecifiedSymbolQuoteTickerPrice(t *testing.T) {
+	resp, err := getSymbolQuoteTickerPrice(&QuoteTickerPriceRequest{
+		Symbol: "BTCUSDT",
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	bytes, _ := json.Marshal(resp)
+	t.Logf("%+v\n", string(bytes))
+}
 func TestGetQuoteDepth(t *testing.T) {
 	resp, err := getQuoteDepth(&QuoteDepthRequest{
 		Symbol: "BTCUSDT",

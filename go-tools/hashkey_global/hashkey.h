@@ -32,7 +32,9 @@ typedef struct {
 void release_Order(Order order);
 
 DEFINE_LIST(Order)
+DEFINE_OPTIONAL(Order)
 DEFINE_RESULT(Order)
+DEFINE_RESULT(Optional_Order)
 DEFINE_RESULT(List_Order)
 
 // Kline
@@ -47,8 +49,17 @@ typedef struct {
 } Kline;
 
 void release_Kline(Kline kline);
-
 DEFINE_LIST(Kline)
 DEFINE_RESULT(List_Kline)
+
+// Price
+typedef struct {
+    String Symbol;
+    String Price;
+} Price;
+void release_Price(Price price);
+DEFINE_LIST(Price)
+DEFINE_RESULT(List_Price)
+
 
 #endif
