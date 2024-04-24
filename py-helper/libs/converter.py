@@ -141,8 +141,8 @@ class TypeConverter(object):
 
 
 class ValueConverter(TypeConverter):
-    def py_object_to_c_values(self, py_object: Mapping[str, PyValue]) -> list[CValue]:
-        c_values = self._py_values_to_c_values(self.schema, py_object)
+    def py_args_to_c_values(self, **kwargs) -> list[CValue]:
+        c_values = self._py_values_to_c_values(self.schema, kwargs)
         return list(c_values.values())
 
     def c_struct_to_py_object(self, structure: Structure) -> Mapping[str, Any]:
@@ -164,7 +164,12 @@ class ValueConverter(TypeConverter):
         if not py_type:
             raise TypeError("Must define type")
         if py_type is str:
-            return str(c_value.decode("utf-8"))
+            if c_value is None:
+                return ""
+            elif isinstance(c_value, bytes):
+                return c_value.decode("utf-8")
+            else:
+                raise TypeError(f"Expected c_char_p, got {type(c_value)}")
         elif py_type in (int, float, bool):
             return py_type(c_value)
         elif py_type is list:
@@ -230,14 +235,17 @@ class ValueConverter(TypeConverter):
         required = obj.required or []
         properties = obj.properties or {}
         for key, prop in properties.items():
+            py_value = py_values.get(key)
             if key not in required:
                 if prop.default is None:
                     # optional
-                    c_values[key] = self._py_optional_to_c_optional(prop, py_values.get(key))
+                    c_values[key] = self._py_optional_to_c_optional(prop, py_value)
                 else:
-                    c_values[key] = self._py_value_to_c_value(prop, prop.default)
+                    c_values[key] = self._py_value_to_c_value(prop, py_value or prop.default)
             else:
-                c_values[key] = self._py_value_to_c_value(prop, py_values.get(key))
+                if py_value is None:
+                    raise ValueError(f"Missing required field {key}")
+                c_values[key] = self._py_value_to_c_value(prop, py_value)
 
         return c_values
 
@@ -293,7 +301,6 @@ class ValueConverter(TypeConverter):
         c_type = self._get_c_type(prop)
         c_optional = self._wrap_optional(c_type)
         if py_optional is None:
-            # TODO: check this
             return c_optional(is_some=False)
         else:
             return c_optional(is_some=True, value=self._py_value_to_c_value(prop, py_optional))

@@ -62,7 +62,7 @@ class ParamSchema(Object):
     @classmethod
     def from_model_type(cls, model: Type[BaseModel]) -> "ParamSchema":
         schema = model.schema()
-        return cls.parse_obj(schema)
+        return cls(**schema)
 
     @validator("definitions")
     def validate_definitions(cls, values: Optional[dict[str, Object]]) -> Optional[dict[str, Object]]:
