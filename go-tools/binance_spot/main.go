@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 	"unsafe"
 )
@@ -31,7 +32,7 @@ func withdraw_history(
 	startTime C.Optional_Int,
 	endTime C.Optional_Int,
 ) C.Result_List_WithdrawHistory {
-	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey))
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
 	svc := cli.NewWithdrawHistoryService()
 	if bool(coin.is_some) {
 		svc.Coin(C.GoString(coin.value))
@@ -94,7 +95,7 @@ func funding_asset(
 	secretKey C.String,
 	asset C.Optional_String,
 ) C.Result_List_FundingAsset {
-	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey))
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
 	svc := cli.NewFundingWalletService().NeedBtcValuation("true")
 	if bool(asset.is_some) {
 		svc.Asset(C.GoString(asset.value))
@@ -136,22 +137,30 @@ func k_lines(
 	symbol C.String,
 	interval C.String,
 	limit C.Int,
-	startTime C.Optional_Int,
-	endTime C.Optional_Int,
+	startTime C.Optional_String,
+	endTime C.Optional_String,
 ) C.Result_List_KLine {
-	cli := binance_connector.NewClient("", "")
+	cli := binance_connector.NewClient("", "", BinanceUrl)
 	svc := cli.NewKlinesService().
 		Symbol(C.GoString(symbol)).
 		Interval(C.GoString(interval)).
 		Limit(int(limit))
 	if bool(startTime.is_some) {
-		svc.StartTime(uint64(startTime.value))
+		start, err := time.Parse(time.RFC3339, C.GoString(startTime.value))
+		if err != nil {
+			return C.err_List_KLine(C.CString(err.Error()))
+		}
+		svc.StartTime(uint64(start.UnixMilli()))
 	}
 	if bool(endTime.is_some) {
-		svc.EndTime(uint64(endTime.value))
+		end, err := time.Parse(time.RFC3339, C.GoString(endTime.value))
+		if err != nil {
+			return C.err_List_KLine(C.CString(err.Error()))
+		}
+		svc.EndTime(uint64(end.UnixMilli()))
 	}
 
-	resps, err := svc.Do(context.Background(), binance_connector.WithRecvWindow(RecvWindow))
+	resps, err := svc.Do(context.Background())
 	if err != nil {
 		return C.err_List_KLine(C.CString(err.Error()))
 	}
@@ -161,26 +170,25 @@ func k_lines(
 	for i, resp := range resps {
 		openTime := time.UnixMilli(int64(resp.OpenTime)).Format(time.RFC3339)
 		openPrice, _ := strconv.ParseFloat(resp.Open, 64)
+		closePrice, _ := strconv.ParseFloat(resp.Close, 64)
 		highPrice, _ := strconv.ParseFloat(resp.High, 64)
 		lowPrice, _ := strconv.ParseFloat(resp.Low, 64)
-		closePrice, _ := strconv.ParseFloat(resp.Close, 64)
-		volume, _ := strconv.ParseFloat(resp.Volume, 64)
-		closeTime := time.UnixMilli(int64(resp.CloseTime)).Format(time.RFC3339)
-		quoteVolumn, _ := strconv.ParseFloat(resp.QuoteAssetVolume, 64)
+		volumn, _ := strconv.ParseFloat(resp.Volume, 64)
+		quoteAssetVolume, _ := strconv.ParseFloat(resp.QuoteAssetVolume, 64)
 		takerBuyBaseAssetVolume, _ := strconv.ParseFloat(resp.TakerBuyBaseAssetVolume, 64)
 		takerBuyQuoteAssetVolume, _ := strconv.ParseFloat(resp.TakerBuyQuoteAssetVolume, 64)
 		dataSlice[i] = C.KLine{
-			open_time:                    C.CString(openTime),
-			open_price:                   C.Float(openPrice),
-			high_price:                   C.Float(highPrice),
-			low_price:                    C.Float(lowPrice),
-			close_price:                  C.Float(closePrice),
-			volume:                       C.Float(volume),
-			close_time:                   C.CString(closeTime),
-			quote_asset_volume:           C.Float(quoteVolumn),
-			number_of_trades:             C.Int(resp.NumberOfTrades),
-			taker_buy_base_asset_volume:  C.Float(takerBuyBaseAssetVolume),
-			taker_buy_quote_asset_volume: C.Float(takerBuyQuoteAssetVolume),
+			t:  C.CString(openTime),
+			s:  symbol,
+			o:  C.Float(openPrice),
+			c:  C.Float(closePrice),
+			h:  C.Float(highPrice),
+			l:  C.Float(lowPrice),
+			v:  C.Float(volumn),
+			q:  C.Float(quoteAssetVolume),
+			tb: C.Float(takerBuyBaseAssetVolume),
+			tq: C.Float(takerBuyQuoteAssetVolume),
+			n:  C.Int(resp.NumberOfTrades),
 		}
 	}
 	return C.ok_List_KLine(data)
@@ -193,22 +201,26 @@ func k_lines_release(output C.Result_List_KLine) {
 
 //export price_change_24h_statistics
 func price_change_24h_statistics(
-	symbols C.List_String,
-	ascending bool,
+	bases C.List_String,
+	quote C.String,
+	descending bool,
 	limit C.Int,
-) C.Result_List_PriceChange24h {
-	symbolsLen := int(symbols.len)
-	if symbolsLen > 20 {
-		return C.err_List_PriceChange24h(C.CString("symbols length exceeds 20"))
+) C.Result_List_PriceChange {
+	goLimit := int(limit)
+	goQuote := strings.ToUpper(C.GoString(quote))
+	basesLen := int(bases.len)
+	if basesLen > 100 {
+		return C.err_List_PriceChange(C.CString("base tokens length exceeds 100"))
 	}
-	if int(limit) > 20 {
-		return C.err_List_PriceChange24h(C.CString("limit exceeds 20"))
+	if goLimit > 100 {
+		return C.err_List_PriceChange(C.CString("limit exceeds 100"))
 	}
 
-	symbolsSlice := (*[1 << 30]C.String)(unsafe.Pointer(symbols.values))[:symbolsLen:symbolsLen]
+	basesSlice := (*[1 << 30]C.String)(unsafe.Pointer(bases.values))[:basesLen:basesLen]
 	var goSymbols []string
-	for _, symbol := range symbolsSlice {
-		goSymbols = append(goSymbols, C.GoString(symbol))
+	for _, base := range basesSlice {
+		goBase := C.GoString(base)
+		goSymbols = append(goSymbols, strings.ToUpper(goBase)+goQuote)
 	}
 
 	url := BinanceUrl + "/api/v3/ticker/24hr"
@@ -218,26 +230,35 @@ func price_change_24h_statistics(
 	}
 	r, err := http.Get(url)
 	if err != nil {
-		return C.err_List_PriceChange24h(C.CString(err.Error()))
+		return C.err_List_PriceChange(C.CString(err.Error()))
 	}
 	defer r.Body.Close()
 
-	var responses []binance_connector.Ticker24hrResponse
+	var responses []Ticker24hrResponse
 	decoder := json.NewDecoder(r.Body)
 	if err = decoder.Decode(&responses); err != nil {
-		return C.err_List_PriceChange24h(C.CString(err.Error()))
+		return C.err_List_PriceChange(C.CString(err.Error()))
+	}
+	var filteredResponses []Ticker24hrResponse
+	for _, resp := range responses {
+		if strings.HasSuffix(resp.Symbol, goQuote) {
+			filteredResponses = append(filteredResponses, resp)
+		}
 	}
 
 	// sort by price change percent
-	sort.SliceStable(&responses, func(i, j int) bool {
-		pct1, _ := strconv.ParseFloat(responses[i].PriceChangePercent, 64)
-		pct2, _ := strconv.ParseFloat(responses[j].PriceChangePercent, 64)
-		return ascending == (pct1 < pct2)
+	sort.SliceStable(filteredResponses, func(i, j int) bool {
+		pct1, _ := strconv.ParseFloat(filteredResponses[i].PriceChangePercent, 64)
+		pct2, _ := strconv.ParseFloat(filteredResponses[j].PriceChangePercent, 64)
+		return descending == (pct1 > pct2)
 	})
-	responses = responses[:limit]
-	data := C.new_List_PriceChange24h(C.size_t(len(responses)))
-	dataSlice := (*[1 << 30]C.PriceChange24h)(unsafe.Pointer(data.values))
-	for i, resp := range responses {
+	if goLimit < len(filteredResponses) {
+		filteredResponses = filteredResponses[:goLimit]
+	}
+
+	data := C.new_List_PriceChange(C.size_t(len(filteredResponses)))
+	dataSlice := (*[1 << 30]C.PriceChange)(unsafe.Pointer(data.values))
+	for i, resp := range filteredResponses {
 		priceChange, _ := strconv.ParseFloat(resp.PriceChange, 64)
 		priceChangePct, _ := strconv.ParseFloat(resp.PriceChangePercent, 64)
 		weightedAvgPrice, _ := strconv.ParseFloat(resp.WeightedAvgPrice, 64)
@@ -249,7 +270,7 @@ func price_change_24h_statistics(
 		quoteVolume, _ := strconv.ParseFloat(resp.QuoteVolume, 64)
 		openTime := time.UnixMilli(int64(resp.OpenTime)).Format(time.RFC3339)
 		closeTime := time.UnixMilli(int64(resp.CloseTime)).Format(time.RFC3339)
-		dataSlice[i] = C.PriceChange24h{
+		dataSlice[i] = C.PriceChange{
 			symbol:             C.CString(resp.Symbol),
 			price_change:       C.Float(priceChange),
 			price_change_pct:   C.Float(priceChangePct),
@@ -265,22 +286,23 @@ func price_change_24h_statistics(
 			count:              C.Int(resp.Count),
 		}
 	}
-	return C.ok_List_PriceChange24h(data)
+	return C.ok_List_PriceChange(data)
 }
 
 //export price_change_24h_statistics_release
-func price_change_24h_statistics_release(output C.Result_List_PriceChange24h) {
-	C.release_Result_List_PriceChange24h(output)
+func price_change_24h_statistics_release(output C.Result_List_PriceChange) {
+	C.release_Result_List_PriceChange(output)
 }
 
 //export rolling_window_price_change_statistics
 func rolling_window_price_change_statistics(
 	symbols C.List_String,
+	descending bool,
 	windowSize C.String,
-) C.Result_List_RollingPriceChange {
+) C.Result_List_PriceChange {
 	symbolsLen := int(symbols.len)
 	if symbolsLen == 0 || symbolsLen > 50 {
-		return C.err_List_RollingPriceChange(C.CString("symbols length must be between 1 and 50"))
+		return C.err_List_PriceChange(C.CString("symbols length must be between 1 and 50"))
 	}
 
 	symbolsSlice := (*[1 << 30]C.String)(unsafe.Pointer(symbols.values))[:symbolsLen:symbolsLen]
@@ -293,18 +315,24 @@ func rolling_window_price_change_statistics(
 	u := fmt.Sprintf("%s/api/v3/ticker?symbols=%s&windowSize=%s", BinanceUrl, goSymbolsStr, C.GoString(windowSize))
 	r, err := http.Get(u)
 	if err != nil {
-		return C.err_List_RollingPriceChange(C.CString(err.Error()))
+		return C.err_List_PriceChange(C.CString(err.Error()))
 	}
 	defer r.Body.Close()
 
 	var responses []binance_connector.TickerResponse
 	decoder := json.NewDecoder(r.Body)
 	if err = decoder.Decode(&responses); err != nil {
-		return C.err_List_RollingPriceChange(C.CString(err.Error()))
+		return C.err_List_PriceChange(C.CString(err.Error()))
 	}
+	// sort by price change percent
+	sort.SliceStable(responses, func(i, j int) bool {
+		pct1, _ := strconv.ParseFloat(responses[i].PriceChangePercent, 64)
+		pct2, _ := strconv.ParseFloat(responses[j].PriceChangePercent, 64)
+		return descending == (pct1 > pct2)
+	})
 
-	data := C.new_List_RollingPriceChange(C.size_t(len(responses)))
-	dataSlice := (*[1 << 30]C.RollingPriceChange)(unsafe.Pointer(data.values))
+	data := C.new_List_PriceChange(C.size_t(len(responses)))
+	dataSlice := (*[1 << 30]C.PriceChange)(unsafe.Pointer(data.values))
 	for i, resp := range responses {
 		priceChange, _ := strconv.ParseFloat(resp.PriceChange, 64)
 		priceChangePct, _ := strconv.ParseFloat(resp.PriceChangePercent, 64)
@@ -317,7 +345,7 @@ func rolling_window_price_change_statistics(
 		quoteVolume, _ := strconv.ParseFloat(resp.QuoteVolume, 64)
 		openTime := time.UnixMilli(int64(resp.OpenTime)).Format(time.RFC3339)
 		closeTime := time.UnixMilli(int64(resp.CloseTime)).Format(time.RFC3339)
-		dataSlice[i] = C.RollingPriceChange{
+		dataSlice[i] = C.PriceChange{
 			symbol:             C.CString(resp.Symbol),
 			price_change:       C.Float(priceChange),
 			price_change_pct:   C.Float(priceChangePct),
@@ -333,12 +361,12 @@ func rolling_window_price_change_statistics(
 			count:              C.Int(resp.Count),
 		}
 	}
-	return C.ok_List_RollingPriceChange(data)
+	return C.ok_List_PriceChange(data)
 }
 
 //export rolling_window_price_change_statistics_release
-func rolling_window_price_change_statistics_release(output C.Result_List_RollingPriceChange) {
-	C.release_Result_List_RollingPriceChange(output)
+func rolling_window_price_change_statistics_release(output C.Result_List_PriceChange) {
+	C.release_Result_List_PriceChange(output)
 }
 
 //export latest_price
@@ -347,6 +375,7 @@ func latest_price(
 	ascending bool,
 	limit C.Int,
 ) C.Result_List_LatestPrice {
+	goLimit := int(limit)
 	symbolsLen := int(symbols.len)
 	if symbolsLen > 100 {
 		return C.err_List_LatestPrice(C.CString("symbols length exceeds 100"))
@@ -378,12 +407,15 @@ func latest_price(
 		return C.err_List_LatestPrice(C.CString(err.Error()))
 	}
 	// sort by price change percent
-	sort.SliceStable(&responses, func(i, j int) bool {
+	sort.SliceStable(responses, func(i, j int) bool {
 		price1, _ := strconv.ParseFloat(responses[i].Price, 64)
 		price2, _ := strconv.ParseFloat(responses[j].Price, 64)
 		return ascending == (price1 < price2)
 	})
-	responses = responses[:limit]
+	if goLimit < len(responses) {
+		responses = responses[:goLimit]
+	}
+
 	data := C.new_List_LatestPrice(C.size_t(len(responses)))
 	dataSlice := (*[1 << 30]C.LatestPrice)(unsafe.Pointer(data.values))
 	for i, resp := range responses {
@@ -399,6 +431,170 @@ func latest_price(
 //export latest_price_release
 func latest_price_release(output C.Result_List_LatestPrice) {
 	C.release_Result_List_LatestPrice(output)
+}
+
+// === Trade ===
+
+//export create_order
+func create_order(
+	apiKey C.String,
+	secretKey C.String,
+	symbol C.String,
+	side C.String,
+	orderType C.String,
+	quantity C.Float,
+	timeInForce C.Optional_String,
+	price C.Optional_Float,
+	stopPrice C.Optional_Float,
+	recvWindow C.Optional_Int,
+) C.Result_OrderResponse {
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
+	svc := cli.NewCreateOrderService().
+		Symbol(C.GoString(symbol)).
+		Side(C.GoString(side)).
+		Type(C.GoString(orderType)).
+		Quantity(float64(quantity)).
+		NewOrderRespType("RESULT")
+	if bool(timeInForce.is_some) {
+		svc.TimeInForce(C.GoString(timeInForce.value))
+	}
+	if bool(price.is_some) {
+		svc.Price(float64(price.value))
+	}
+	if bool(stopPrice.is_some) {
+		svc.StopPrice(float64(stopPrice.value))
+	}
+	var opts []binance_connector.RequestOption
+	if bool(recvWindow.is_some) {
+		opts = append(opts, binance_connector.WithRecvWindow(int64(recvWindow.value)))
+	}
+
+	resp, err := svc.Do(context.Background(), opts...)
+	if err != nil {
+		return C.err_OrderResponse(C.CString(err.Error()))
+	}
+	resultResp := resp.(*binance_connector.CreateOrderResponseRESULT)
+
+	transcactTime := time.UnixMilli(int64(resultResp.TransactTime)).Format(time.RFC3339)
+	workingTime := time.UnixMilli(int64(resultResp.WorkingTime)).Format(time.RFC3339)
+	finalPrice, _ := strconv.ParseFloat(resultResp.Price, 64)
+	origQty, _ := strconv.ParseFloat(resultResp.OrigQty, 64)
+	executedQty, _ := strconv.ParseFloat(resultResp.ExecutedQty, 64)
+	cumulativeQuoteQty, _ := strconv.ParseFloat(resultResp.CumulativeQuoteQty, 64)
+	orderResp := C.OrderResponse{
+		symbol:               C.CString(resultResp.Symbol),
+		order_id:             C.Int(resultResp.OrderId),
+		transact_time:        C.CString(transcactTime),
+		working_time:         C.CString(workingTime),
+		price:                C.Float(finalPrice),
+		orig_qty:             C.Float(origQty),
+		executed_qty:         C.Float(executedQty),
+		cumulative_quote_qty: C.Float(cumulativeQuoteQty),
+		status:               C.CString(resultResp.Status),
+		time_in_force:        C.CString(resultResp.TimeInForce),
+		order_type:           C.CString(resultResp.Type),
+		side:                 C.CString(resultResp.Side),
+	}
+	return C.ok_OrderResponse(orderResp)
+}
+
+//export create_order_release
+func create_order_release(output C.Result_OrderResponse) {
+	C.release_Result_OrderResponse(output)
+}
+
+//export cancel_order
+func cancel_order(
+	apiKey C.String,
+	secretKey C.String,
+	symbol C.String,
+	orderId C.Int,
+	cancelRestrictions C.Optional_String,
+	recvWindow C.Optional_Int,
+) C.Result_Int {
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
+	svc := cli.NewCancelOrderService().
+		Symbol(C.GoString(symbol)).
+		OrderId(int64(orderId))
+	if bool(cancelRestrictions.is_some) {
+		svc.CancelRestrictions(C.GoString(cancelRestrictions.value))
+	}
+	var opts []binance_connector.RequestOption
+	if bool(recvWindow.is_some) {
+		opts = append(opts, binance_connector.WithRecvWindow(int64(recvWindow.value)))
+	}
+
+	resp, err := svc.Do(context.Background(), opts...)
+	if err != nil {
+		return C.err_Int(C.CString(err.Error()))
+	}
+	return C.ok_Int(C.Int(resp.OrderId))
+}
+
+//export cancel_order_release
+func cancel_order_release(output C.Result_Int) {
+	C.release_Result_Int(output)
+}
+
+//export get_open_orders
+func get_open_orders(
+	apiKey C.String,
+	secretKey C.String,
+	symbol C.Optional_String,
+	recvWindow C.Optional_Int,
+) C.Result_List_Order {
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
+	svc := cli.NewGetOpenOrdersService()
+	if bool(symbol.is_some) {
+		svc.Symbol(C.GoString(symbol.value))
+	}
+	var opts []binance_connector.RequestOption
+	if bool(recvWindow.is_some) {
+		opts = append(opts, binance_connector.WithRecvWindow(int64(recvWindow.value)))
+	}
+
+	resps, err := svc.Do(context.Background(), opts...)
+	if err != nil {
+		return C.err_List_Order(C.CString(err.Error()))
+	}
+
+	data := C.new_List_Order(C.size_t(len(resps)))
+	dataSlice := (*[1 << 30]C.Order)(unsafe.Pointer(data.values))
+	for i, resp := range resps {
+		timestamp := time.UnixMilli(int64(resp.Time)).Format(time.RFC3339)
+		updateTime := time.UnixMilli(int64(resp.UpdateTime)).Format(time.RFC3339)
+		workingTime := time.UnixMilli(int64(resp.WorkingTime)).Format(time.RFC3339)
+		finalPrice, _ := strconv.ParseFloat(resp.Price, 64)
+		origQty, _ := strconv.ParseFloat(resp.OrigQty, 64)
+		executedQty, _ := strconv.ParseFloat(resp.ExecutedQty, 64)
+		cumulativeQuoteQty, _ := strconv.ParseFloat(resp.CumulativeQuoteQty, 64)
+		stopPrice, _ := strconv.ParseFloat(resp.StopPrice, 64)
+		origQuoteOrderQty, _ := strconv.ParseFloat(resp.OrigQuoteOrderQty, 64)
+		dataSlice[i] = C.Order{
+			symbol:               C.CString(resp.Symbol),
+			order_id:             C.Int(resp.OrderId),
+			price:                C.Float(finalPrice),
+			orig_qty:             C.Float(origQty),
+			executed_qty:         C.Float(executedQty),
+			cumulative_quote_qty: C.Float(cumulativeQuoteQty),
+			status:               C.CString(resp.Status),
+			time_in_force:        C.CString(resp.TimeInForce),
+			order_type:           C.CString(resp.Type),
+			side:                 C.CString(resp.Side),
+			stop_price:           C.Float(stopPrice),
+			timestamp:            C.CString(timestamp),
+			update_time:          C.CString(updateTime),
+			is_working:           C.Bool(resp.IsWorking),
+			working_time:         C.CString(workingTime),
+			orig_quote_order_qty: C.Float(origQuoteOrderQty),
+		}
+	}
+	return C.ok_List_Order(data)
+}
+
+//export get_open_orders_release
+func get_open_orders_release(output C.Result_List_Order) {
+	C.release_Result_List_Order(output)
 }
 
 func main() {}

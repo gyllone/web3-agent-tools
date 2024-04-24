@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # 定义镜像和容器名称
 IMAGE_NAME="go-tool-compiler"

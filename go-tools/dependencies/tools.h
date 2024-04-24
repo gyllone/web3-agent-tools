@@ -109,7 +109,7 @@ void release_Dict_##type(Dict_##type dict) { \
 typedef struct { \
     Bool status; \
     String error; \
-    type value; \
+    Optional_##type value; \
 } Result_##type; \
 extern Result_##type ok_##type(type value); \
 extern Result_##type err_##type(String error); \
@@ -120,21 +120,21 @@ Result_##type ok_##type(type value) { \
     Result_##type result; \
     result.status = true; \
     result.error = ""; \
-    result.value = value; \
+    result.value = some_##type(value); \
     return result; \
 } \
 Result_##type err_##type(String error) { \
     Result_##type result; \
     result.status = false; \
     result.error = error; \
+    result.value = none_##type(); \
     return result; \
 } \
 void release_Result_##type(Result_##type result) { \
-    if (result.status) { \
-        release_##type(result.value); \
-    } else { \
+    if (!result.status) { \
         free(result.error); \
     } \
+    release_Optional_##type(result.value); \
 }
 
 #endif

@@ -28,7 +28,7 @@ class ToolSchema(BaseModel):
     and passed as arguments to the handlers defined in `callbacks`.
     You can use these to eg identify a specific instance of a tool with its use case."""
 
-    def run_tool(self, path: str, args: Optional[Mapping[str, Any]]) -> Optional[Mapping[str, Any]]:
+    def run_tool(self, path: str, **kwargs) -> Optional[Mapping[str, Any]]:
         try:
             os_type = platform.system()
             if os_type == "Windows":
@@ -43,16 +43,24 @@ class ToolSchema(BaseModel):
         args_converter = ValueConverter(self.args_schema) if self.args_schema else None
         result_converter = ValueConverter(self.result_schema) if self.result_schema else None
 
-        c_func = getattr(lib, self.name)
-        c_func.argtypes = args_converter.get_arg_types() if args_converter else []
-        c_func.restype = result_converter.get_structure_type() if result_converter else None
+        try:
+            c_func = getattr(lib, self.name)
+            c_func.argtypes = args_converter.get_arg_types() if args_converter else []
+            c_func.restype = result_converter.get_structure_type() if result_converter else None
+        except BaseException as e:
+            raise ValueError(f"Function {self.name} not found in library: {e}")
 
-        c_release_func = getattr(lib, f"{self.name}_release")
-        if c_release_func and c_func.restype:
-            c_release_func.argtypes = [c_func.restype]
-            c_release_func.restype = None
+        try:
+            c_release_func = getattr(lib, f"{self.name}_release")
+            if c_func.restype:
+                c_release_func.argtypes = [c_func.restype]
+                c_release_func.restype = None
+            else:
+                c_release_func = None
+        except BaseException as _:
+            c_release_func = None
 
-        c_args = args_converter.py_object_to_c_values(args) if args_converter else []
+        c_args = args_converter.py_args_to_c_values(**kwargs) if args_converter else []
         c_res = c_func(*c_args)
 
         try:

@@ -1,5 +1,5 @@
 import json
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 
 from libs.tool import ToolSchema
@@ -14,7 +14,7 @@ class Param(BaseModel):
 
 class Input(BaseModel):
     foo: Optional[str] = Field(None, description="foo")
-    bar: list[dict[str, int]] = Field(description="bar")
+    bar: list[dict[str, Param]] = Field(description="bar")
     baz: Param = Field(description="baz")
 
 
@@ -31,14 +31,16 @@ if __name__ == '__main__':
         args_schema=ParamSchema.from_model_type(Input),
         result_schema=ParamSchema.from_model_type(Output),
     )
+    schema_json = schema.json(indent=2, by_alias=True, exclude_none=True)
+    print(schema_json)
 
     print("\n===============Running Tool===============\n")
 
     args = Input(
         foo="foo",
         bar=[
-            {"x": 1, "y": 2},
-            {"x": 3, "y": 4},
+            {"foo": True, "bar": [1.0, 2.0], "baz": {"x": 1, "y": 2}},
+            {"foo": False, "bar": [3.0, 4.0], "baz": {"x": 3, "y": 4}},
         ],
         baz=Param(
             foo=True,
