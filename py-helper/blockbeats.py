@@ -34,7 +34,7 @@ if __name__ == '__main__':
         }
     )
     # print tool schema
-    print(schema.json(indent=2, by_alias=True, exclude_none=True))
+    print(schema.json(indent=2, by_alias=False, exclude_none=True))
 
     print("\n===============Running Tool===============\n")
 
