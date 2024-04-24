@@ -10,4 +10,5 @@ void release_NewsItem(NewsItem item) {
 }
 
 IMPL_LIST(NewsItem)
+IMPL_OPTIONAL(List_NewsItem)
 IMPL_RESULT(List_NewsItem)
