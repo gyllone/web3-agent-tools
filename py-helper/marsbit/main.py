@@ -71,6 +71,6 @@ if __name__ == '__main__':
 
     # args = NewsInput(page_size=5, lang="en")
     args = SearchedNewsObjInput(q="bit")
-    resp = schema.run_tool("../../go-tools/output/marsbit.so", args.dict(by_alias=True))
+    resp = schema.run_tool("../../go-tools/output/marsbit.so", **args.dict(by_alias=True))
     if resp is not None:
         print(json.dumps(resp, indent=2))

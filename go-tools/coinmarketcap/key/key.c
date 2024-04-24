@@ -25,4 +25,4 @@ void release_Info(Info data) {
 
 IMPL_OPTIONAL(Info)
 
-IMPL_RESULT(Optional_Info)
+IMPL_RESULT(Info)

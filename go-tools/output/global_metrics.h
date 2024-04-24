@@ -83,8 +83,8 @@ extern "C" {
 
 // TODO: 返回err_Optional_Metric 报panic
 //
-extern __declspec(dllexport) Result_Optional_Metric query_quotes_latest(Optional_String convert, Optional_String convert_id);
-extern __declspec(dllexport) void query_quotes_latest_release(Result_Optional_Metric result);
+extern __declspec(dllexport) Result_Metric query_quotes_latest(Optional_String convert, Optional_String convert_id);
+extern __declspec(dllexport) void query_quotes_latest_release(Result_Metric result);
 
 #ifdef __cplusplus
 }

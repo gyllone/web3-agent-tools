@@ -20,6 +20,8 @@ void release_Fiat(Fiat data);
 
 DEFINE_LIST(Fiat);
 
+DEFINE_OPTIONAL(List_Fiat);
+
 DEFINE_RESULT(List_Fiat);
 
 #endif

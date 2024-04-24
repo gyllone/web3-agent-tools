@@ -10,23 +10,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"strconv"
 	"unsafe"
 )
 
 //export query_newsflashes
 func query_newsflashes(per_page C.Optional_Int, is_import C.Optional_Bool) C.Result_List_News {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(NewsflashesUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -96,16 +85,6 @@ func query_newsflashes_release(result C.Result_List_News) {
 
 //export query_post_list
 func query_post_list(type_str C.Optional_String) C.Result_List_Post {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(PostListUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"

@@ -8,34 +8,22 @@ import "C"
 import (
 	"coinmarketcap/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 )
 
 //export query_info
-func query_info() C.Result_Optional_Info {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
+func query_info() C.Result_Info {
 	u, err := url.Parse(InfoUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
-		return C.err_Optional_Info(C.CString(errStr))
+		return C.err_Info(C.CString(errStr))
 	}
 
 	req, err1 := http.NewRequest("GET", u.String(), nil)
 	if err1 != nil {
 		errStr := "Failed to create request"
-		return C.err_Optional_Info(C.CString(errStr))
+		return C.err_Info(C.CString(errStr))
 	}
 
 	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
@@ -46,7 +34,7 @@ func query_info() C.Result_Optional_Info {
 	response, err2 := client.Do(req)
 	if err2 != nil {
 		errStr := "Failed to send request"
-		return C.err_Optional_Info(C.CString(errStr))
+		return C.err_Info(C.CString(errStr))
 	}
 
 	defer response.Body.Close()
@@ -54,7 +42,7 @@ func query_info() C.Result_Optional_Info {
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
 	if err3 != nil {
 		errStr := "Failed to decompress response"
-		return C.err_Optional_Info(C.CString(errStr))
+		return C.err_Info(C.CString(errStr))
 	}
 
 	defer respBodyDecomp.Close()
@@ -64,16 +52,16 @@ func query_info() C.Result_Optional_Info {
 	err = json.NewDecoder(respBodyDecomp).Decode(&respBody)
 	if err != nil {
 		errStr := "Failed to decode response" + err.Error()
-		return C.err_Optional_Info(C.CString(errStr))
+		return C.err_Info(C.CString(errStr))
 	}
 
 	if response.StatusCode != 200 {
-		return C.err_Optional_Info(C.CString(respBody.Status.ErrorMessage))
+		return C.err_Info(C.CString(respBody.Status.ErrorMessage))
 	}
 
 	respData := respBody.Data
 
-	data := C.some_Info(C.Info{
+	data := C.Info{
 		plan: C.Plan{
 			credit_limit_monthly:           C.Int(respData.Plan.CreditLimitMonthly),
 			credit_limit_monthly_reset:     C.CString(respData.Plan.CreditLimitMonthlyReset),
@@ -93,14 +81,14 @@ func query_info() C.Result_Optional_Info {
 				credits_left: C.Int(respData.Usage.CurrentMonth.CreditsLeft),
 			},
 		},
-	})
+	}
 
-	return C.ok_Optional_Info(data)
+	return C.ok_Info(data)
 }
 
 //export query_info_release
-func query_info_release(result C.Result_Optional_Info) {
-	C.release_Result_Optional_Info(result)
+func query_info_release(result C.Result_Info) {
+	C.release_Result_Info(result)
 }
 
 func main() {}

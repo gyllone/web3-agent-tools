@@ -19,6 +19,8 @@ void release_News(News data);
 
 DEFINE_LIST(News)
 
+DEFINE_OPTIONAL(List_News)
+
 DEFINE_RESULT(List_News)
 
 
@@ -45,7 +47,5 @@ void release_SearchedNewsObj(SearchedNewsObj data);
 
 DEFINE_OPTIONAL(SearchedNewsObj)
 
-DEFINE_RESULT(Optional_SearchedNewsObj)
-
-
+DEFINE_RESULT(SearchedNewsObj)
 #endif

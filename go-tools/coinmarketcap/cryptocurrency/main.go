@@ -8,10 +8,8 @@ import "C"
 import (
 	"coinmarketcap/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"strconv"
 	"unsafe"
 )
@@ -20,15 +18,6 @@ import (
 //
 //export query_quotes_latest
 func query_quotes_latest(id, slug, convert, convert_id, aux C.Optional_String, skip_invalid C.Optional_Bool) C.Result_Dict_QuoteData {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
 	idsIsSome := bool(id.is_some)
 	slugIsSome := bool(slug.is_some)
 	if !(idsIsSome || slugIsSome) {
@@ -231,15 +220,6 @@ func query_quotes_latest_release(result C.Result_Dict_QuoteData) {
 
 //export query_id_map
 func query_id_map(listing_status, sort, symbol, aux C.Optional_String, start, limit C.Optional_Int) C.Result_List_Cryptocurrency {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
 	u, err := url.Parse(IdMapUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -349,15 +329,6 @@ func query_id_map_release(result C.Result_List_Cryptocurrency) {
 //
 //export query_metadata
 func query_metadata(id, slug, address, aux C.Optional_String, skip_invalid C.Optional_Bool) C.Result_Dict_Metadata {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
 	idIsSome := bool(id.is_some)
 	slugIsSome := bool(slug.is_some)
 	addressIsSome := bool(address.is_some)
@@ -509,16 +480,6 @@ func query_metadata_release(result C.Result_Dict_Metadata) {
 
 //export query_listings
 func query_listings(start, limit, price_min, price_max, market_cap_min, market_cap_max, volume_24h_min, volume_24h_max, circulating_supply_min, circulating_supply_max, percent_change_24h_min, percent_change_24h_max C.Optional_Int, convert, convert_id, sort, sort_dir, cryptocurrency_type, tag, aux C.Optional_String) C.Result_List_MarketData {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(ListingsLatestUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -665,16 +626,6 @@ func query_listings_release(result C.Result_List_MarketData) {
 
 //export query_categories
 func query_categories(start, limit C.Optional_Int, id, slug, symbol C.Optional_String) C.Result_List_Category {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(CategoriesUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -770,20 +721,11 @@ func query_categories_release(result C.Result_List_Category) {
 }
 
 //export query_category
-func query_category(id C.String, start, limit C.Optional_Int, convert, convert_id C.Optional_String) C.Result_Optional_CategorySingle {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
+func query_category(id C.String, start, limit C.Optional_Int, convert, convert_id C.Optional_String) C.Result_CategorySingle {
 	u, err := url.Parse(CategoryUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
-		return C.err_Optional_CategorySingle(C.CString(errStr))
+		return C.err_CategorySingle(C.CString(errStr))
 	}
 
 	params := url.Values{}
@@ -805,7 +747,7 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 	req, err1 := http.NewRequest("GET", u.String(), nil)
 	if err1 != nil {
 		errStr := "Failed to create request"
-		return C.err_Optional_CategorySingle(C.CString(errStr))
+		return C.err_CategorySingle(C.CString(errStr))
 	}
 
 	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
@@ -816,7 +758,7 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 	response, err2 := client.Do(req)
 	if err2 != nil {
 		errStr := "Failed to send request"
-		return C.err_Optional_CategorySingle(C.CString(errStr))
+		return C.err_CategorySingle(C.CString(errStr))
 	}
 
 	defer response.Body.Close()
@@ -827,7 +769,7 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 
 	if err3 != nil {
 		errStr := "Failed to decompress response"
-		return C.err_Optional_CategorySingle(C.CString(errStr))
+		return C.err_CategorySingle(C.CString(errStr))
 	}
 
 	var respBody CategoryResp
@@ -835,15 +777,15 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 	err = json.NewDecoder(respBodyDecomp).Decode(&respBody)
 	if err != nil {
 		errStr := "Failed to decode response\n" + err.Error()
-		return C.err_Optional_CategorySingle(C.CString(errStr))
+		return C.err_CategorySingle(C.CString(errStr))
 	}
 
 	if response.StatusCode != 200 {
-		return C.err_Optional_CategorySingle(C.CString(respBody.Status.ErrorMessage))
+		return C.err_CategorySingle(C.CString(respBody.Status.ErrorMessage))
 	}
 
 	respData := respBody.Data
-	data := C.some_CategorySingle(C.CategorySingle{
+	data := C.CategorySingle{
 		id:                C.CString(respData.ID),
 		name:              C.CString(respData.Name),
 		description:       C.CString(respData.Description),
@@ -855,9 +797,9 @@ func query_category(id C.String, start, limit C.Optional_Int, convert, convert_i
 		volume_change:     C.Float(respData.VolumeChange),
 		last_updated:      C.CString(respData.LastUpdated.String()),
 		coins:             getCCoinList(respData.Coins),
-	})
+	}
 
-	return C.ok_Optional_CategorySingle(data)
+	return C.ok_CategorySingle(data)
 }
 
 func getCCoinList(coins []Coin) C.List_Coin {
@@ -894,8 +836,8 @@ func getCCoinList(coins []Coin) C.List_Coin {
 }
 
 //export query_category_release
-func query_category_release(result C.Result_Optional_CategorySingle) {
-	C.release_Result_Optional_CategorySingle(result)
+func query_category_release(result C.Result_CategorySingle) {
+	C.release_Result_CategorySingle(result)
 }
 
 func main() {

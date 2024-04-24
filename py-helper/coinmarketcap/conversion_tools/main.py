@@ -50,7 +50,8 @@ if __name__ == '__main__':
 
     args = PriceInput(amount=10.27, id="1", convert="USD")
 
-    resp = schema.run_tool("../../../go-tools/output/conversion_tools.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/conversion_tools.so",
+                           **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

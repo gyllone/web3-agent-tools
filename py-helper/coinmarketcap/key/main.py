@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     args = InfoInput()
 
-    resp = schema.run_tool("../../../go-tools/output/key.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/key.so", **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

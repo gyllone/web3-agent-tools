@@ -15,4 +15,6 @@ void release_Fiat(Fiat data) {
 
 IMPL_LIST(Fiat)
 
+IMPL_OPTIONAL(List_Fiat)
+
 IMPL_RESULT(List_Fiat)

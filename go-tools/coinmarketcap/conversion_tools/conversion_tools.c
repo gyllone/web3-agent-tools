@@ -18,4 +18,4 @@ void release_PriceConversion(PriceConversion data) {
 
 IMPL_OPTIONAL(PriceConversion)
 
-IMPL_RESULT(Optional_PriceConversion)
+IMPL_RESULT(PriceConversion)

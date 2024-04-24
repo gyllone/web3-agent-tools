@@ -96,8 +96,8 @@ extern __declspec(dllexport) Result_List_MarketData query_listings(Optional_Int 
 extern __declspec(dllexport) void query_listings_release(Result_List_MarketData result);
 extern __declspec(dllexport) Result_List_Category query_categories(Optional_Int start, Optional_Int limit, Optional_String id, Optional_String slug, Optional_String symbol);
 extern __declspec(dllexport) void query_categories_release(Result_List_Category result);
-extern __declspec(dllexport) Result_Optional_CategorySingle query_category(String id, Optional_Int start, Optional_Int limit, Optional_String convert, Optional_String convert_id);
-extern __declspec(dllexport) void query_category_release(Result_Optional_CategorySingle result);
+extern __declspec(dllexport) Result_CategorySingle query_category(String id, Optional_Int start, Optional_Int limit, Optional_String convert, Optional_String convert_id);
+extern __declspec(dllexport) void query_category_release(Result_CategorySingle result);
 
 #ifdef __cplusplus
 }

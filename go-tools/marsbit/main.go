@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"runtime/debug"
 	"strconv"
 	"time"
 	"unsafe"
@@ -19,16 +18,6 @@ import (
 
 //export query_news
 func query_news(query_time, page_size C.Optional_Int, lang C.Optional_String) C.Result_List_News {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(ShowInfoUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -106,21 +95,11 @@ func unix2UTC(unix int64) string {
 }
 
 //export query_multisearch
-func query_multisearch(q C.String, page, page_size C.Optional_Int) C.Result_Optional_SearchedNewsObj {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
+func query_multisearch(q C.String, page, page_size C.Optional_Int) C.Result_SearchedNewsObj {
 	u, err := url.Parse(MultiSearchUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
-		return C.err_Optional_SearchedNewsObj(C.CString(errStr))
+		return C.err_SearchedNewsObj(C.CString(errStr))
 	}
 
 	params := url.Values{}
@@ -139,12 +118,12 @@ func query_multisearch(q C.String, page, page_size C.Optional_Int) C.Result_Opti
 	resp, err := http.Get(u.String())
 	if err != nil {
 		errStr := "Failed to send request"
-		return C.err_Optional_SearchedNewsObj(C.CString(errStr))
+		return C.err_SearchedNewsObj(C.CString(errStr))
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return C.err_Optional_SearchedNewsObj(
+		return C.err_SearchedNewsObj(
 			C.CString(fmt.Sprintf("Unexpected status code: %d", resp.StatusCode)))
 	}
 
@@ -153,20 +132,20 @@ func query_multisearch(q C.String, page, page_size C.Optional_Int) C.Result_Opti
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		errStr := "Failed to decode response\n" + err.Error()
-		return C.err_Optional_SearchedNewsObj(C.CString(errStr))
+		return C.err_SearchedNewsObj(C.CString(errStr))
 	}
 
 	if respBody.Message != "success" {
-		return C.err_Optional_SearchedNewsObj(C.CString(respBody.Message))
+		return C.err_SearchedNewsObj(C.CString(respBody.Message))
 	}
 
-	data := C.some_SearchedNewsObj(C.SearchedNewsObj{
+	data := C.SearchedNewsObj{
 		News:          getCSearchedNewsList(respBody.Data.News.InforList),
 		Lives:         getCSearchedNewsList(respBody.Data.Lives.InforList),
 		ExcellentNews: getCSearchedNewsList(respBody.Data.ExcellentNews.InforList),
-	})
+	}
 
-	return C.ok_Optional_SearchedNewsObj(data)
+	return C.ok_SearchedNewsObj(data)
 }
 
 func getCSearchedNewsList(list []searchedNews) C.List_SearchedNews {
@@ -191,8 +170,8 @@ func getCSearchedNewsList(list []searchedNews) C.List_SearchedNews {
 }
 
 //export query_multisearch_release
-func query_multisearch_release(result C.Result_Optional_SearchedNewsObj) {
-	C.release_Result_Optional_SearchedNewsObj(result)
+func query_multisearch_release(result C.Result_SearchedNewsObj) {
+	C.release_Result_SearchedNewsObj(result)
 }
 
 func main() {}

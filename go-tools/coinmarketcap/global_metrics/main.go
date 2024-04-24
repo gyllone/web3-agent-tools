@@ -11,29 +11,18 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"unsafe"
 )
 
 // TODO: 返回err_Optional_Metric 报panic
 //
 //export query_quotes_latest
-func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optional_Metric {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-	fmt.Println("------go print start------")
+func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Metric {
 	u, err := url.Parse(QuotesLatestUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
 		fmt.Println("go print", errStr)
-		return C.err_Optional_Metric(C.CString(errStr))
+		return C.err_Metric(C.CString(errStr))
 	}
 
 	params := url.Values{}
@@ -49,7 +38,7 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 	if err1 != nil {
 		errStr := "Failed to create request"
 		fmt.Println("go print", errStr)
-		return C.err_Optional_Metric(C.CString(errStr))
+		return C.err_Metric(C.CString(errStr))
 	}
 
 	req.Header.Set("X-CMC_PRO_API_KEY", utils.ApiKey)
@@ -63,7 +52,7 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 	if err2 != nil {
 		errStr := "Failed to send request"
 		fmt.Println("go print", errStr)
-		return C.err_Optional_Metric(C.CString(errStr))
+		return C.err_Metric(C.CString(errStr))
 	}
 
 	respBodyDecomp, err3 := utils.DecompressResponse(response)
@@ -72,7 +61,7 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 	if err3 != nil {
 		errStr := "Failed to decompress response"
 		fmt.Println("go print", errStr)
-		return C.err_Optional_Metric(C.CString(errStr))
+		return C.err_Metric(C.CString(errStr))
 	}
 
 	var respBody QuotesLatestResp
@@ -81,17 +70,17 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 	if err != nil {
 		errStr := "Failed to decode response\n" + err.Error()
 		fmt.Println("go print", errStr)
-		return C.err_Optional_Metric(C.CString(errStr))
+		return C.err_Metric(C.CString(errStr))
 	}
 
 	if response.StatusCode != 200 {
 		fmt.Println("go print", respBody.Status.ErrorMessage)
-		return C.err_Optional_Metric(C.CString(respBody.Status.ErrorMessage))
+		return C.err_Metric(C.CString(respBody.Status.ErrorMessage))
 	}
 
 	respData := respBody.Data
 
-	data := C.some_Metric(C.Metric{
+	data := C.Metric{
 		active_cryptocurrencies:             C.Int(respData.ActiveCryptocurrencies),
 		total_cryptocurrencies:              C.Int(respData.TotalCryptocurrencies),
 		active_market_pairs:                 C.Int(respData.ActiveMarketPairs),
@@ -116,9 +105,9 @@ func query_quotes_latest(convert, convert_id C.Optional_String) C.Result_Optiona
 		derivatives_24h_percentage_change:   C.Float(respData.Derivatives24hPercentageChange),
 		quote:                               getCQuoteDict(respData.Quote),
 		last_updated:                        C.CString(respData.LastUpdated.String()),
-	})
+	}
 
-	return C.ok_Optional_Metric(data)
+	return C.ok_Metric(data)
 }
 
 func getCQuoteDict(quotes map[string]Quote) C.Dict_Quote {
@@ -165,9 +154,9 @@ func getCQuoteDict(quotes map[string]Quote) C.Dict_Quote {
 }
 
 //export query_quotes_latest_release
-func query_quotes_latest_release(result C.Result_Optional_Metric) {
+func query_quotes_latest_release(result C.Result_Metric) {
 	fmt.Println("123")
-	C.release_Result_Optional_Metric(result)
+	C.release_Result_Metric(result)
 }
 
 func main() {}

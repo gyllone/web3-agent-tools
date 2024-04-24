@@ -49,6 +49,6 @@ void release_Info(Info data);
 
 DEFINE_OPTIONAL(Info)
 
-DEFINE_RESULT(Optional_Info)
+DEFINE_RESULT(Info)
 
 #endif

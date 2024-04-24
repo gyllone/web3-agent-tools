@@ -82,8 +82,8 @@ extern "C" {
 
 extern __declspec(dllexport) Result_List_News query_news(Optional_Int query_time, Optional_Int page_size, Optional_String lang);
 extern __declspec(dllexport) void query_news_release(Result_List_News result);
-extern __declspec(dllexport) Result_Optional_SearchedNewsObj query_multisearch(String q, Optional_Int page, Optional_Int page_size);
-extern __declspec(dllexport) void query_multisearch_release(Result_Optional_SearchedNewsObj result);
+extern __declspec(dllexport) Result_SearchedNewsObj query_multisearch(String q, Optional_Int page, Optional_Int page_size);
+extern __declspec(dllexport) void query_multisearch_release(Result_SearchedNewsObj result);
 
 #ifdef __cplusplus
 }

@@ -22,6 +22,8 @@ void release_News(News data);
 
 DEFINE_LIST(News)
 
+DEFINE_OPTIONAL(List_News)
+
 DEFINE_RESULT(List_News)
 
 
@@ -38,6 +40,8 @@ typedef struct {
 void release_Post (Post data);
 
 DEFINE_LIST(Post)
+
+DEFINE_OPTIONAL(List_Post)
 
 DEFINE_RESULT(List_Post)
 

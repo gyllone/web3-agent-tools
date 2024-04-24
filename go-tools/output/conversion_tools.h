@@ -80,8 +80,8 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern __declspec(dllexport) Result_Optional_PriceConversion query_price_conversion(Float amount, Optional_String id, Optional_String symbol, Optional_String time, Optional_String convert, Optional_String convert_id);
-extern __declspec(dllexport) void query_price_conversion_release(Result_Optional_PriceConversion result);
+extern __declspec(dllexport) Result_PriceConversion query_price_conversion(Float amount, Optional_String id, Optional_String symbol, Optional_String time, Optional_String convert, Optional_String convert_id);
+extern __declspec(dllexport) void query_price_conversion_release(Result_PriceConversion result);
 
 #ifdef __cplusplus
 }

@@ -15,6 +15,8 @@ void release_News(News data) {
 
 IMPL_LIST(News)
 
+IMPL_OPTIONAL(List_News)
+
 IMPL_RESULT(List_News)
 
 
@@ -36,4 +38,4 @@ void release_SearchedNewsObj(SearchedNewsObj data) {
 
 IMPL_OPTIONAL(SearchedNewsObj)
 
-IMPL_RESULT(Optional_SearchedNewsObj)
+IMPL_RESULT(SearchedNewsObj)

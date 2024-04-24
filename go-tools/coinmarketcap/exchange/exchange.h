@@ -24,6 +24,8 @@ void release_Exchange(Exchange data);
 
 DEFINE_LIST(Exchange)
 
+DEFINE_OPTIONAL(List_Exchange)
+
 DEFINE_RESULT(List_Exchange)
 
 
@@ -50,7 +52,10 @@ void release_Metadata(Metadata data);
 
 DEFINE_DICT(Metadata)
 
+DEFINE_OPTIONAL(Dict_Metadata)
+
 DEFINE_RESULT(Dict_Metadata)
+
 
 
 typedef struct {
@@ -80,6 +85,8 @@ typedef struct {
 void release_Asset(Asset data);
 
 DEFINE_LIST(Asset)
+
+DEFINE_OPTIONAL(List_Asset)
 
 DEFINE_RESULT(List_Asset)
 

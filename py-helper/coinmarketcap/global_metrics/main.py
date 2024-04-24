@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     args = QuoteInput(convert="USD")
 
-    resp = schema.run_tool("../../../go-tools/output/global_metrics.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/global_metrics.so", **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

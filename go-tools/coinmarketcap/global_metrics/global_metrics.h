@@ -65,6 +65,6 @@ void release_Metric(Metric data);
 
 DEFINE_OPTIONAL(Metric)
 
-DEFINE_RESULT(Optional_Metric)
+DEFINE_RESULT(Metric)
 
 #endif

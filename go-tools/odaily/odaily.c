@@ -16,6 +16,8 @@ void release_News(News data) {
 
 IMPL_LIST(News)
 
+IMPL_OPTIONAL(List_News)
+
 IMPL_RESULT(List_News)
 
 
@@ -29,5 +31,7 @@ void release_Post (Post data) {
 }
 
 IMPL_LIST(Post)
+
+IMPL_OPTIONAL(List_Post)
 
 IMPL_RESULT(List_Post)

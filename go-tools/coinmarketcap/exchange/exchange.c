@@ -16,7 +16,12 @@ void release_Exchange(Exchange data) {
 
 IMPL_LIST(Exchange)
 
+IMPL_OPTIONAL(List_Exchange)
+
 IMPL_RESULT(List_Exchange)
+
+
+
 
 IMPL_LIST(String)
 
@@ -32,6 +37,8 @@ void release_Metadata(Metadata data) {
 }
 
 IMPL_DICT(Metadata)
+
+IMPL_OPTIONAL(Dict_Metadata)
 
 IMPL_RESULT(Dict_Metadata)
 
@@ -54,5 +61,7 @@ void release_Asset(Asset data) {
 }
 
 IMPL_LIST(Asset)
+
+IMPL_OPTIONAL(List_Asset)
 
 IMPL_RESULT(List_Asset)

@@ -87,7 +87,7 @@ class Asset(BaseModel):
 
 
 class AssetOutput(Result):
-    value: list[Asset]
+    value: Optional[list[Asset]]
 
 
 if __name__ == '__main__':
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # args = MetadataInput(slug="binance,gdax")
     args = AssetInput(id="270")
 
-    resp = schema.run_tool("../../../go-tools/output/exchange.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/exchange.so", **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

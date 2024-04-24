@@ -80,8 +80,8 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern __declspec(dllexport) Result_Optional_Info query_info();
-extern __declspec(dllexport) void query_info_release(Result_Optional_Info result);
+extern __declspec(dllexport) Result_Info query_info();
+extern __declspec(dllexport) void query_info_release(Result_Info result);
 
 #ifdef __cplusplus
 }

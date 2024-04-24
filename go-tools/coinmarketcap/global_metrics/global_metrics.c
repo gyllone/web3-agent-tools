@@ -16,4 +16,4 @@ void release_Metric(Metric data) {
 
 IMPL_OPTIONAL(Metric)
 
-IMPL_RESULT(Optional_Metric)
+IMPL_RESULT(Metric)

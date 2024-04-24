@@ -27,6 +27,6 @@ void release_PriceConversion(PriceConversion data);
 
 DEFINE_OPTIONAL(PriceConversion)
 
-DEFINE_RESULT(Optional_PriceConversion)
+DEFINE_RESULT(PriceConversion)
 
 #endif

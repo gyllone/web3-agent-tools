@@ -8,26 +8,14 @@ import "C"
 import (
 	"coinmarketcap/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"strconv"
 	"unsafe"
 )
 
 //export query_id_map
 func query_id_map(start, limit C.Optional_Int, sort C.Optional_String, include_metals C.Optional_Bool) C.Result_List_Fiat {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(IdMapUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"

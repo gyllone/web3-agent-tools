@@ -26,7 +26,7 @@ class Fiat(BaseModel):
 
 
 class Output(Result):
-    value: list[Fiat]
+    value: Optional[list[Fiat]]
 
 
 if __name__ == '__main__':
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     args = Input(start=5, limit=2, sort="name", include_metals=True)
 
-    resp = schema.run_tool("../../../go-tools/output/fiat.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/fiat.so", **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

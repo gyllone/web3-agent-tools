@@ -44,7 +44,7 @@ class Post(BaseModel):
 class PostOutput(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    value: list[Post]
+    value: Optional[list[Post]]
 
 
 if __name__ == '__main__':
@@ -65,6 +65,6 @@ if __name__ == '__main__':
 
     # args = NewsflashesInput(per_page=2)
     args = PostInput()
-    resp = schema.run_tool("../../go-tools/output/odaily.so", args.dict(by_alias=True))
+    resp = schema.run_tool("../../go-tools/output/odaily.so", **args.dict(by_alias=True))
     if resp is not None:
         print(json.dumps(resp, indent=2))

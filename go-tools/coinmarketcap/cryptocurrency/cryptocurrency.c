@@ -49,6 +49,8 @@ void release_QuoteData(QuoteData data) {
 
 IMPL_DICT(QuoteData)
 
+IMPL_OPTIONAL(Dict_QuoteData)
+
 IMPL_RESULT(Dict_QuoteData)
 
 
@@ -63,6 +65,8 @@ void release_Cryptocurrency(Cryptocurrency data) {
 }
 
 IMPL_LIST(Cryptocurrency)
+
+IMPL_OPTIONAL(List_Cryptocurrency)
 
 IMPL_RESULT(List_Cryptocurrency)
 
@@ -106,6 +110,8 @@ void release_Metadata(Metadata data) {
 
 IMPL_DICT(Metadata)
 
+IMPL_OPTIONAL(Dict_Metadata)
+
 IMPL_RESULT(Dict_Metadata)
 
 
@@ -124,6 +130,8 @@ void release_MarketData(MarketData data) {
 
 IMPL_LIST(MarketData)
 
+IMPL_OPTIONAL(List_MarketData)
+
 IMPL_RESULT(List_MarketData)
 
 
@@ -137,6 +145,8 @@ void release_Category(Category data) {
 }
 
 IMPL_LIST(Category)
+
+IMPL_OPTIONAL(List_Category)
 
 IMPL_RESULT(List_Category)
 
@@ -165,4 +175,4 @@ void release_CategorySingle(CategorySingle data) {
 
 IMPL_OPTIONAL(CategorySingle)
 
-IMPL_RESULT(Optional_CategorySingle)
+IMPL_RESULT(CategorySingle)

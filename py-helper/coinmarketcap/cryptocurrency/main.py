@@ -302,7 +302,7 @@ if __name__ == '__main__':
     # args = CategoriesInput(start=-1)
     args = CategoryInput(id="605e2ce9d41eae1066535f7c", limit=2)
 
-    resp = schema.run_tool("../../../go-tools/output/crycur.so", args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../../../go-tools/output/crycur.so", **args.dict(by_alias=True, exclude_none=True))
 
     if resp is not None:
         print(json.dumps(resp, indent=2))

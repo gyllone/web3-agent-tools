@@ -8,10 +8,8 @@ import "C"
 import (
 	"coinmarketcap/utils"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -19,16 +17,6 @@ import (
 
 //export query_id_map
 func query_id_map(start, limit C.Optional_Int, listing_status, slug, sort, aux, crypto_id C.Optional_String) C.Result_List_Exchange {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	u, err := url.Parse(IdMapUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"
@@ -130,16 +118,6 @@ func query_id_map_release(result C.Result_List_Exchange) {
 
 //export query_metadata
 func query_metadata(id, slug, aux C.Optional_String) C.Result_Dict_Metadata {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
-
 	idIsSome := bool(id.is_some)
 	slugIsSome := bool(slug.is_some)
 	if !(idIsSome || slugIsSome) {
@@ -285,15 +263,6 @@ func query_metadata_release(result C.Result_Dict_Metadata) {
 
 //export query_exchange_assets
 func query_exchange_assets(id C.String) C.Result_List_Asset {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("------go print start------")
-			fmt.Println("Recovered from panic:", r)
-			fmt.Println("Stack trace:")
-			fmt.Println("------go print end------")
-			debug.PrintStack()
-		}
-	}()
 	u, err := url.Parse(ExchangeAssetsUrl)
 	if err != nil {
 		errStr := "Failed to parse URL"

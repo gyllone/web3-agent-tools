@@ -80,6 +80,8 @@ void release_QuoteData(QuoteData data);
 
 DEFINE_DICT(QuoteData)
 
+DEFINE_OPTIONAL(Dict_QuoteData)
+
 DEFINE_RESULT(Dict_QuoteData)
 
 
@@ -99,6 +101,8 @@ typedef struct {
 void release_Cryptocurrency(Cryptocurrency data);
 
 DEFINE_LIST(Cryptocurrency)
+
+DEFINE_OPTIONAL(List_Cryptocurrency)
 
 DEFINE_RESULT(List_Cryptocurrency)
 
@@ -150,6 +154,8 @@ void release_Metadata(Metadata data);
 
 DEFINE_DICT(Metadata)
 
+DEFINE_OPTIONAL(Dict_Metadata)
+
 DEFINE_RESULT(Dict_Metadata)
 
 
@@ -179,6 +185,8 @@ void release_MarketData(MarketData data);
 
 DEFINE_LIST(MarketData)
 
+DEFINE_OPTIONAL(List_MarketData)
+
 DEFINE_RESULT(List_MarketData)
 
 
@@ -199,6 +207,8 @@ typedef struct {
 void release_Category(Category data);
 
 DEFINE_LIST(Category)
+
+DEFINE_OPTIONAL(List_Category)
 
 DEFINE_RESULT(List_Category)
 
@@ -246,5 +256,5 @@ void release_CategorySingle(CategorySingle data);
 
 DEFINE_OPTIONAL(CategorySingle)
 
-DEFINE_RESULT(Optional_CategorySingle)
+DEFINE_RESULT(CategorySingle)
 #endif
