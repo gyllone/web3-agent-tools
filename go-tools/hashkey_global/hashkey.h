@@ -16,6 +16,7 @@ typedef struct {
 void release_Balance(Balance bal);
 
 DEFINE_LIST(Balance)
+DEFINE_OPTIONAL(List_Balance)
 DEFINE_RESULT(List_Balance)
 
 // order
@@ -34,7 +35,7 @@ void release_Order(Order order);
 DEFINE_LIST(Order)
 DEFINE_OPTIONAL(Order)
 DEFINE_RESULT(Order)
-DEFINE_RESULT(Optional_Order)
+DEFINE_OPTIONAL(List_Order)
 DEFINE_RESULT(List_Order)
 
 // Kline
@@ -50,6 +51,7 @@ typedef struct {
 
 void release_Kline(Kline kline);
 DEFINE_LIST(Kline)
+DEFINE_OPTIONAL(List_Kline)
 DEFINE_RESULT(List_Kline)
 
 // Price
@@ -59,6 +61,7 @@ typedef struct {
 } Price;
 void release_Price(Price price);
 DEFINE_LIST(Price)
+DEFINE_OPTIONAL(List_Price)
 DEFINE_RESULT(List_Price)
 
 

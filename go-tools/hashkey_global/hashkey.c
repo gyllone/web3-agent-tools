@@ -10,6 +10,7 @@ void release_Balance(Balance bal) {
     free(bal.Free);
 }
 IMPL_LIST(Balance)
+IMPL_OPTIONAL(List_Balance);
 IMPL_RESULT(List_Balance)
 
 // order
@@ -25,7 +26,7 @@ void release_Order(Order order) {
 }
 IMPL_LIST(Order)
 IMPL_OPTIONAL(Order)
-IMPL_RESULT(Optional_Order)
+IMPL_OPTIONAL(List_Order);
 IMPL_RESULT(List_Order)
 IMPL_RESULT(Order)
 
@@ -40,6 +41,7 @@ void release_Kline(Kline kline) {
     free(kline.Volume);
 }
 IMPL_LIST(Kline)
+IMPL_OPTIONAL(List_Kline);
 IMPL_RESULT(List_Kline)
 
 // price
@@ -49,5 +51,6 @@ void release_Price(Price price) {
 
 }
 IMPL_LIST(Price)
+IMPL_OPTIONAL(List_Price);
 IMPL_RESULT(List_Price)
 

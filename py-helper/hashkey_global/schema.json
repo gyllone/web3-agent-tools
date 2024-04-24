@@ -37,8 +37,7 @@
     },
     "required": [
       "status",
-      "error",
-      "result"
+      "error"
     ],
     "definitions": {
       "Balance": {
@@ -128,8 +127,7 @@
     },
     "required": [
       "status",
-      "error",
-      "result"
+      "error"
     ],
     "definitions": {
       "SpotOrder": {
@@ -239,8 +237,7 @@
     },
     "required": [
       "status",
-      "error",
-      "result"
+      "error"
     ],
     "definitions": {
       "SpotOrder": {
@@ -342,8 +339,7 @@
     },
     "required": [
       "status",
-      "error",
-      "result"
+      "error"
     ],
     "definitions": {
       "Kline": {
@@ -428,8 +424,7 @@
     },
     "required": [
       "status",
-      "error",
-      "result"
+      "error"
     ],
     "definitions": {
       "Price": {

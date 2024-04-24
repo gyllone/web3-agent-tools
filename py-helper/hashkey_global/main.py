@@ -113,6 +113,6 @@ if __name__ == '__main__':
     for schema in schemas:
         if schema["case"] is None:
             continue
-        resp = schema["schema"].run_tool(f"../go-tools/{project}/outputs/{project}.so", schema["case"].dict(by_alias=True, exclude_none=True))
+        resp = schema["schema"].run_tool(f"../go-tools/{project}/outputs/{project}.so", **schema["case"].dict(by_alias=True, exclude_none=True))
         if resp is not None:
             print(json.dumps(resp, indent=2, ensure_ascii=False))

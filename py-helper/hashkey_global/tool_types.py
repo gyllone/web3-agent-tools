@@ -16,7 +16,7 @@ class GetTradeAccountBalanceArgs(BaseModel):
 class GetTradeAccountBalanceResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    result: list[Balance] = Field(description="list of user's virtual asset balance in spot trade account of hashkey global exchange")
+    result: Optional[list[Balance]] = Field(None, description="list of user's virtual asset balance in spot trade account of hashkey global exchange")
 
 class SpotOrder(BaseModel):
     orderId: str = Field(description="orderid")
@@ -46,7 +46,7 @@ class CreateSpotMarketOrderArgs(BaseModel):
 class CreateSpotMarketOrderResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    result: list[SpotOrder] = Field(description="spot order")
+    result: Optional[list[SpotOrder]] = Field(None, description="spot order")
 
 class Kline(BaseModel):
     t: str=Field(description="open timestamp of Timestamp in RFC3339 format")
@@ -70,7 +70,7 @@ class GetKlineArgs(BaseModel):
 class GetKlineResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    result: list[Kline] = Field(description="list of kline bars")
+    result: Optional[list[Kline]] = Field(None, description="list of kline bars")
 
 class Price(BaseModel):
     symbol:str = Field(description="trading pair of crypto, like BTCUSDT")
@@ -82,5 +82,5 @@ class GetLatestPriceArgs(BaseModel):
 class GetLatestPriceResult(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    result: list[Price]=Field(description="latest price")
+    result: Optional[list[Price]]=Field(None, description="latest price")
     
