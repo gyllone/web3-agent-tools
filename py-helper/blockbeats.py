@@ -20,7 +20,7 @@ class NewsItem(BaseModel):
 class BlockBeatsNewsResult(BaseModel):
     status: bool = Field(description="if the request is success")
     error: str = Field(description="error message")
-    items: Optional[list[NewsItem]] = Field(None, description="list of news")
+    its: Optional[list[NewsItem]] = Field(None, description="list of news")
 
 
 if __name__ == '__main__':
