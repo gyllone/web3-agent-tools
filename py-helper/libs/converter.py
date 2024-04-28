@@ -1,8 +1,7 @@
-from typing import Type, Any, Optional, Tuple, Mapping
 from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, POINTER, cast
+from typing import Type, Any, Optional, Tuple, Mapping
 
 from .schema import Object, Property, ParamSchema
-
 
 CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure]
 PyValue = bool | int | float | str | list[Any] | dict[str, Any] | Mapping[str, Any] | Optional[Any]
@@ -274,9 +273,11 @@ class ValueConverter(TypeConverter):
         )
 
     def _c_dict_to_py_dict(self, prop: Property, c_dict: Structure) -> dict[str, Any]:
+        # print("n", c_dict.len)
         c_type = self._get_c_type(prop)
         keys_pointer = cast(c_dict.keys, POINTER(c_char_p * c_dict.len))
         values_pointer = cast(c_dict.values, POINTER(c_type * c_dict.len))
+        # print("n", values_pointer.contents[0])
         return {
             keys_pointer.contents[i].decode("utf-8"):
                 self._c_value_to_py_value(prop, values_pointer.contents[i])
