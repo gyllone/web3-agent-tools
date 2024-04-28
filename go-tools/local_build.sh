@@ -7,5 +7,5 @@ else
 fi
 
 BUILD_CMD="cd ${TARGET_TOOL} && CGO_ENABLED=1 go build -ldflags \"-s -w\" -buildvcs=false -o outputs/${TARGET_TOOL}.so -buildmode=c-shared"
-
+go clean -cache
 bash -c "${BUILD_CMD}"
