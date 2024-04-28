@@ -36,6 +36,47 @@ class WithdrawHistoryOutput(BaseModel):
     result: Optional[list[WithdrawHistory]]
 
 
+class QueryFundingAsset(BaseModel):
+    api_key: str
+    secret_key: str
+    asset: Optional[str] = Field(None, description="coin name in uppercase, if not provided, query all coins")
+
+
+class FundingAsset(BaseModel):
+    asset: str
+    free: float
+    locked: float
+    freeze: float
+    withdrawing: float
+    btc_valuation: float
+
+
+class FundingAssetsOutput(BaseModel):
+    status: bool
+    error: str
+    result: Optional[list[FundingAsset]]
+
+
+class QueryAccountInfo(BaseModel):
+    api_key: str
+    secret_key: str
+    recv_window: Optional[int] = Field(None, description="specify the request must be processed within a certain "
+                                                         "number of milliseconds or be rejected by the server, The "
+                                                         "value cannot be greater than 60000")
+
+
+class Balance(BaseModel):
+    asset: str
+    free: float
+    locked: float
+
+
+class AccountInfo(BaseModel):
+    can_trade: bool
+    can_withdraw: bool
+    can_deposit: bool
+
+
 class QueryKlines(BaseModel):
     symbol: str = Field(description="trading symbol, combined with base and quote token in uppercase, e.g. BTCUSDT")
     interval: str = Field("1d", description="time interval, supported values: 1m,3m,5m,15m,30m,1h,2h,4h,6h,8h.12h,"

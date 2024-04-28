@@ -20,74 +20,74 @@ import (
 
 // === Wallet ===
 
-//export withdraw_history
-func withdraw_history(
-	apiKey C.String,
-	secretKey C.String,
-	coin C.Optional_String,
-	withdrawId C.Optional_String,
-	status C.Optional_Int,
-	offset C.Optional_Int,
-	limit C.Optional_Int,
-	startTime C.Optional_Int,
-	endTime C.Optional_Int,
-) C.Result_List_WithdrawHistory {
-	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
-	svc := cli.NewWithdrawHistoryService()
-	if bool(coin.is_some) {
-		svc.Coin(C.GoString(coin.value))
-	}
-	if bool(withdrawId.is_some) {
-		svc.WithdrawOrderId(C.GoString(withdrawId.value))
-	}
-	if bool(status.is_some) {
-		svc.Status(int(status.value))
-	}
-	if bool(offset.is_some) {
-		svc.Offset(int(offset.value))
-	}
-	if bool(limit.is_some) {
-		svc.Limit(int(limit.value))
-	}
-	if bool(startTime.is_some) {
-		svc.StartTime(uint64(startTime.value))
-	}
-	if bool(endTime.is_some) {
-		svc.EndTime(uint64(endTime.value))
-	}
-	resps, err := svc.Do(context.Background())
-	if err != nil {
-		return C.err_List_WithdrawHistory(C.CString(err.Error()))
-	}
-
-	data := C.new_List_WithdrawHistory(C.size_t(len(resps)))
-	dataSlice := (*[1 << 30]C.WithdrawHistory)(unsafe.Pointer(data.values))
-	for i, resp := range resps {
-		amount, _ := strconv.ParseFloat(resp.Amount, 64)
-		txFee, _ := strconv.ParseFloat(resp.TransactionFee, 64)
-		dataSlice[i] = C.WithdrawHistory{
-			id:            C.CString(resp.WithdrawOrderId),
-			amount:        C.Float(amount),
-			tx_fee:        C.Float(txFee),
-			coin:          C.CString(resp.Coin),
-			status:        C.Int(resp.Status),
-			address:       C.CString(resp.Address),
-			tx_id:         C.CString(resp.TxId),
-			apply_time:    C.CString(resp.ApplyTime),
-			network:       C.CString(resp.Network),
-			transfer_type: C.Int(resp.TransferType),
-			info:          C.CString(resp.Info),
-			confirmations: C.Int(resp.ConfirmNo),
-			wallet_type:   C.Int(resp.WalletType),
-		}
-	}
-	return C.ok_List_WithdrawHistory(data)
-}
-
-//export withdraw_history_release
-func withdraw_history_release(output C.Result_List_WithdrawHistory) {
-	C.release_Result_List_WithdrawHistory(output)
-}
+////export withdraw_history
+//func withdraw_history(
+//	apiKey C.String,
+//	secretKey C.String,
+//	coin C.Optional_String,
+//	withdrawId C.Optional_String,
+//	status C.Optional_Int,
+//	offset C.Optional_Int,
+//	limit C.Optional_Int,
+//	startTime C.Optional_Int,
+//	endTime C.Optional_Int,
+//) C.Result_List_WithdrawHistory {
+//	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
+//	svc := cli.NewWithdrawHistoryService()
+//	if bool(coin.is_some) {
+//		svc.Coin(C.GoString(coin.value))
+//	}
+//	if bool(withdrawId.is_some) {
+//		svc.WithdrawOrderId(C.GoString(withdrawId.value))
+//	}
+//	if bool(status.is_some) {
+//		svc.Status(int(status.value))
+//	}
+//	if bool(offset.is_some) {
+//		svc.Offset(int(offset.value))
+//	}
+//	if bool(limit.is_some) {
+//		svc.Limit(int(limit.value))
+//	}
+//	if bool(startTime.is_some) {
+//		svc.StartTime(uint64(startTime.value))
+//	}
+//	if bool(endTime.is_some) {
+//		svc.EndTime(uint64(endTime.value))
+//	}
+//	resps, err := svc.Do(context.Background())
+//	if err != nil {
+//		return C.err_List_WithdrawHistory(C.CString(err.Error()))
+//	}
+//
+//	data := C.new_List_WithdrawHistory(C.size_t(len(resps)))
+//	dataSlice := (*[1 << 30]C.WithdrawHistory)(unsafe.Pointer(data.values))
+//	for i, resp := range resps {
+//		amount, _ := strconv.ParseFloat(resp.Amount, 64)
+//		txFee, _ := strconv.ParseFloat(resp.TransactionFee, 64)
+//		dataSlice[i] = C.WithdrawHistory{
+//			id:            C.CString(resp.WithdrawOrderId),
+//			amount:        C.Float(amount),
+//			tx_fee:        C.Float(txFee),
+//			coin:          C.CString(resp.Coin),
+//			status:        C.Int(resp.Status),
+//			address:       C.CString(resp.Address),
+//			tx_id:         C.CString(resp.TxId),
+//			apply_time:    C.CString(resp.ApplyTime),
+//			network:       C.CString(resp.Network),
+//			transfer_type: C.Int(resp.TransferType),
+//			info:          C.CString(resp.Info),
+//			confirmations: C.Int(resp.ConfirmNo),
+//			wallet_type:   C.Int(resp.WalletType),
+//		}
+//	}
+//	return C.ok_List_WithdrawHistory(data)
+//}
+//
+////export withdraw_history_release
+//func withdraw_history_release(output C.Result_List_WithdrawHistory) {
+//	C.release_Result_List_WithdrawHistory(output)
+//}
 
 //export funding_asset
 func funding_asset(
@@ -128,6 +128,56 @@ func funding_asset(
 //export funding_asset_release
 func funding_asset_release(output C.Result_List_FundingAsset) {
 	C.release_Result_List_FundingAsset(output)
+}
+
+//export get_account_info
+func get_account_info(
+	apiKey C.String,
+	secretKey C.String,
+	recvWindow C.Optional_Int,
+) C.Result_AccountInfo {
+	cli := binance_connector.NewClient(C.GoString(apiKey), C.GoString(secretKey), BinanceUrl)
+	svc := cli.NewGetAccountService()
+	var opts []binance_connector.RequestOption
+	if bool(recvWindow.is_some) {
+		opts = append(opts, binance_connector.WithRecvWindow(int64(recvWindow.value)))
+	}
+
+	resp, err := svc.Do(context.Background(), opts...)
+	if err != nil {
+		return C.err_AccountInfo(C.CString(err.Error()))
+	}
+	balances := C.new_List_Balance(C.size_t(len(resp.Balances)))
+	balancesSlice := (*[1 << 30]C.Balance)(unsafe.Pointer(balances.values))
+	for i, balance := range resp.Balances {
+		free, _ := strconv.ParseFloat(balance.Free, 64)
+		locked, _ := strconv.ParseFloat(balance.Locked, 64)
+		balancesSlice[i] = C.Balance{
+			asset:  C.CString(balance.Asset),
+			free:   C.Float(free),
+			locked: C.Float(locked),
+		}
+	}
+	permissions := C.new_List_String(C.size_t(len(resp.Permissions)))
+	permissionsSlice := (*[1 << 30]C.String)(unsafe.Pointer(permissions.values))
+	for i, permission := range resp.Permissions {
+		permissionsSlice[i] = C.CString(permission)
+	}
+	updateTime := time.UnixMilli(int64(resp.UpdateTime)).Format(time.RFC3339)
+	accountInfo := C.AccountInfo{
+		can_trade:    C.Bool(resp.CanTrade),
+		can_withdraw: C.Bool(resp.CanWithdraw),
+		can_deposit:  C.Bool(resp.CanDeposit),
+		update_time:  C.CString(updateTime),
+		balances:     balances,
+		permissions:  permissions,
+	}
+	return C.ok_AccountInfo(accountInfo)
+}
+
+//export get_account_info_release
+func get_account_info_release(output C.Result_AccountInfo) {
+	C.release_Result_AccountInfo(output)
 }
 
 // === Market ===
