@@ -7,19 +7,19 @@ IMPL_LIST(String)
 
 // === Wallet ===
 
-void release_WithdrawHistory(WithdrawHistory data) {
-    free(data.id);
-    free(data.coin);
-    free(data.address);
-    free(data.tx_id);
-    free(data.apply_time);
-    free(data.network);
-    free(data.info);
-}
-
-IMPL_LIST(WithdrawHistory)
-IMPL_OPTIONAL(List_WithdrawHistory)
-IMPL_RESULT(List_WithdrawHistory)
+//void release_WithdrawHistory(WithdrawHistory data) {
+//    free(data.id);
+//    free(data.coin);
+//    free(data.address);
+//    free(data.tx_id);
+//    free(data.apply_time);
+//    free(data.network);
+//    free(data.info);
+//}
+//
+//IMPL_LIST(WithdrawHistory)
+//IMPL_OPTIONAL(List_WithdrawHistory)
+//IMPL_RESULT(List_WithdrawHistory)
 
 void release_FundingAsset(FundingAsset data) {
     free(data.asset);
@@ -28,6 +28,21 @@ void release_FundingAsset(FundingAsset data) {
 IMPL_LIST(FundingAsset)
 IMPL_OPTIONAL(List_FundingAsset)
 IMPL_RESULT(List_FundingAsset)
+
+void release_Balance(Balance data) {
+    free(data.asset);
+}
+
+IMPL_LIST(Balance)
+
+void release_AccountInfo(AccountInfo data) {
+    free(data.update_time);
+    release_List_Balance(data.balances);
+    release_List_String(data.permissions);
+}
+
+IMPL_OPTIONAL(AccountInfo)
+IMPL_RESULT(AccountInfo)
 
 // === Market ===
 

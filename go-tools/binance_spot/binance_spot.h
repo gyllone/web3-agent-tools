@@ -10,27 +10,27 @@ DEFINE_LIST(String)
 
 // === Wallet ===
 
-typedef struct {
-    String id;
-    Float amount;
-    Float tx_fee;
-    String coin;
-    Int status;
-    String address;
-    String tx_id;
-    String apply_time;
-    String network;
-    Int transfer_type;
-    String info;
-    Int confirmations;
-    Int wallet_type;
-} WithdrawHistory;
-
-extern void release_WithdrawHistory(WithdrawHistory data);
-
-DEFINE_LIST(WithdrawHistory)
-DEFINE_OPTIONAL(List_WithdrawHistory)
-DEFINE_RESULT(List_WithdrawHistory)
+//typedef struct {
+//    String id;
+//    Float amount;
+//    Float tx_fee;
+//    String coin;
+//    Int status;
+//    String address;
+//    String tx_id;
+//    String apply_time;
+//    String network;
+//    Int transfer_type;
+//    String info;
+//    Int confirmations;
+//    Int wallet_type;
+//} WithdrawHistory;
+//
+//extern void release_WithdrawHistory(WithdrawHistory data);
+//
+//DEFINE_LIST(WithdrawHistory)
+//DEFINE_OPTIONAL(List_WithdrawHistory)
+//DEFINE_RESULT(List_WithdrawHistory)
 
 typedef struct {
     String asset;
@@ -40,12 +40,33 @@ typedef struct {
     Float withdrawing;
     Float btc_valuation;
 } FundingAsset;
-
 extern void release_FundingAsset(FundingAsset data);
 
 DEFINE_LIST(FundingAsset)
 DEFINE_OPTIONAL(List_FundingAsset)
 DEFINE_RESULT(List_FundingAsset)
+
+typedef struct {
+    String asset;
+    Float free;
+    Float locked;
+} Balance;
+extern void release_Balance(Balance data);
+
+DEFINE_LIST(Balance)
+
+typedef struct {
+    Bool can_trade;
+    Bool can_withdraw;
+    Bool can_deposit;
+    String update_time;
+    List_Balance balances;
+    List_String permissions;
+} AccountInfo;
+extern void release_AccountInfo(AccountInfo data);
+
+DEFINE_OPTIONAL(AccountInfo)
+DEFINE_RESULT(AccountInfo)
 
 // === Market ===
 
