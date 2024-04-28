@@ -14,6 +14,7 @@ typedef struct {
 void release_NewsItem(NewsItem item);
 
 DEFINE_LIST(NewsItem)
+DEFINE_OPTIONAL(List_NewsItem)
 DEFINE_RESULT(List_NewsItem)
 
 #endif

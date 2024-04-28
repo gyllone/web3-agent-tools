@@ -20,7 +20,7 @@ class NewsItem(BaseModel):
 class BlockBeatsNewsResult(BaseModel):
     status: bool = Field(description="if the request is success")
     error: str = Field(description="error message")
-    items: list[NewsItem] = Field(description="list of news")
+    its: Optional[list[NewsItem]] = Field(None, description="list of news")
 
 
 if __name__ == '__main__':
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         }
     )
     # print tool schema
-    print(schema.json(indent=2, by_alias=True, exclude_none=True))
+    print(schema.json(indent=2, by_alias=False, exclude_none=True))
 
     print("\n===============Running Tool===============\n")
 
@@ -43,6 +43,6 @@ if __name__ == '__main__':
         limit=2
     )
 
-    resp = schema.run_tool("../go-tools/outputs/flash_news.so", **args.dict(by_alias=True, exclude_none=True))
+    resp = schema.run_tool("../go-tools/flash_news/outputs/flash_news.so", **args.dict(by_alias=True, exclude_none=True))
     if resp is not None:
         print(json.dumps(resp, indent=2, ensure_ascii=False))
