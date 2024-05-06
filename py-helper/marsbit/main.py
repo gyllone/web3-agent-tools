@@ -63,7 +63,7 @@ if __name__ == '__main__':
         args_schema=ParamSchema.from_model_type(SearchedNewsObjInput),
         result_schema=ParamSchema.from_model_type(SearchedNewsObjOutput),
         metadata={
-            "annotation": "*querying from odaily*\n"
+            "annotation": "*querying from marsbit*\n"
         }
     )
 
