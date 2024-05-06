@@ -80,12 +80,8 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern __declspec(dllexport) Result_List_User query_users_by_username(String username);
-extern __declspec(dllexport) void query_users_by_username_release(Result_List_User result);
-extern __declspec(dllexport) Result_List_TimelineInfo query_user_timeline(String id);
-extern __declspec(dllexport) void query_user_timeline_release(Result_List_TimelineInfo result);
-extern __declspec(dllexport) Result_List_TimelineInfo query_user_mention_timeline(String userId);
-extern __declspec(dllexport) void query_user_mention_timeline_release(Result_List_TimelineInfo result);
+extern __declspec(dllexport) Result_Dict_Result_List_TimelineInfo query_users_timeline(String usernames, Int max_results_per_user);
+extern __declspec(dllexport) void query_users_timeline_release(Result_Dict_Result_List_TimelineInfo result);
 
 #ifdef __cplusplus
 }

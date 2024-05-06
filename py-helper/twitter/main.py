@@ -8,47 +8,15 @@ from libs.schema import ParamSchema
 from libs.tool import ToolSchema
 
 
-class User(BaseModel):
-    id: str
-    name: str
-    username: str
-
-
-class UserInput(BaseModel):
-    username: str
-
-
-class UserOutput(BaseModel):
-    status: bool = Field(description="status")
-    error: str = Field(description="error")
-    value: Optional[list[User]]
-
-
-class Domain(BaseModel):
-    id: str
-    name: str
-    description: str
-
-
-class ContextAnnotation(BaseModel):
-    domain: Domain
-    entity: Domain
-
-
-class Tweet(BaseModel):
+class TimelineInfo(BaseModel):
     id: str
     text: str
-    context_annotations: list[ContextAnnotation]
     create_at: str
 
 
-class TimelineInfo(BaseModel):
-    tweet: Tweet
-    author: User
-
-
 class TimelineInfoInput(BaseModel):
-    id: str
+    usernames: str
+    max_results_per_user: int
 
 
 class TimelineInfoOutput(BaseModel):
@@ -57,16 +25,19 @@ class TimelineInfoOutput(BaseModel):
     value: Optional[list[TimelineInfo]]
 
 
+class TimelineInfosOutput(BaseModel):
+    status: bool = Field(description="status")
+    error: str = Field(description="error")
+    value: Optional[dict[str, TimelineInfoOutput]]
+
+
 if __name__ == '__main__':
     schema = ToolSchema(
-        # name="query_user_ids",
-        # name="query_user_timeline",
-        name="query_user_mention_timeline",
+        name="query_users_timeline",
+        # name="query_user_mention_timeline",
         description="This is a test",
-        # args_schema=ParamSchema.from_model_type(UserInput),
-        # result_schema=ParamSchema.from_model_type(UserOutput),
         args_schema=ParamSchema.from_model_type(TimelineInfoInput),
-        result_schema=ParamSchema.from_model_type(TimelineInfoOutput),
+        result_schema=ParamSchema.from_model_type(TimelineInfosOutput),
         metadata={
             "annotation": "*querying from twitter*\n"
         }
@@ -75,7 +46,7 @@ if __name__ == '__main__':
     print("\n===============Running Tool===============\n")
 
     # args = UserInput(username="G2NiKo")
-    args = TimelineInfoInput(id="3351760203")
+    args = TimelineInfoInput(usernames="G2NiKo,elonmusk", max_results_per_user=5)
 
     resp = schema.run_tool("../../go-tools/output/twitter.so", **args.dict(by_alias=True))
     if resp is not None:
