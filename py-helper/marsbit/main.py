@@ -25,7 +25,7 @@ class NewsInput(BaseModel):
 class NewsOutput(BaseModel):
     status: bool = Field(description="status")
     error: str = Field(description="error")
-    value: list[News]
+    value: Optional[list[News]]
 
 
 class SearchedNewsObjInput(BaseModel):
@@ -67,10 +67,8 @@ if __name__ == '__main__':
         }
     )
 
-    print("\n===============Running Tool===============\n")
-
     # args = NewsInput(page_size=5, lang="en")
     args = SearchedNewsObjInput(q="bit")
-    resp = schema.run_tool("../../go-tools/output/marsbit.so", **args.dict(by_alias=True))
+    resp = schema.run_tool("../../go-tools/marsbit/outputs/marsbit.so", **args.dict(by_alias=True))
     if resp is not None:
         print(json.dumps(resp, indent=2))

@@ -40,9 +40,9 @@ fi
 #docker run --name $CONTAINER_NAME -d $IMAGE_NAME tail -f /dev/null
 
 # 将当前项目拷贝到容器中
-docker cp ../go-convertion_tools $CONTAINER_NAME:/app
+docker cp ../go-tools $CONTAINER_NAME:/app
 
-BUILD_CMD="cd /app/go-tools/${TARGET_TOOL} && CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-gnu-gcc go build -ldflags \"-s -w\" -buildvcs=false -o outputs/${TARGET_TOOL}.so -buildmode=c-shared"
+BUILD_CMD="cd /app/go-tools/${TARGET_TOOL} && mkdir -p outputs && CGO_ENABLED=1 GOOS=linux GOARCH=amd64 CC=x86_64-linux-gnu-gcc go build -ldflags \"-s -w\" -buildvcs=false -o outputs/${TARGET_TOOL}.so -buildmode=c-shared"
 
 SRC_ARCH=$(docker exec $CONTAINER_NAME go env GOARCH)
 

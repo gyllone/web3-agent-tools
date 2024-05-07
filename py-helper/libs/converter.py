@@ -1,7 +1,8 @@
-from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, POINTER, cast
 from typing import Type, Any, Optional, Tuple, Mapping
+from ctypes import c_bool, c_longlong, c_double, c_char_p, c_size_t, Structure, POINTER, cast
 
 from .schema import Object, Property, ParamSchema
+
 
 CType = Type[c_bool | c_longlong | c_double | c_char_p | Structure]
 PyValue = bool | int | float | str | list[Any] | dict[str, Any] | Mapping[str, Any] | Optional[Any]
@@ -9,10 +10,12 @@ CValue = c_bool | c_longlong | c_double | c_char_p | Structure
 
 
 class TypeConverter(object):
+    scope: str
     schema: ParamSchema
     c_types_cache: dict[str, Type[Structure]] = {}
 
-    def __init__(self, schema: ParamSchema):
+    def __init__(self, scope: str, schema: ParamSchema):
+        self.scope = scope
         self.schema = schema
 
     def get_arg_types(self) -> list[CType]:
@@ -20,7 +23,7 @@ class TypeConverter(object):
 
     def get_structure_type(self) -> Type[Structure]:
         c_fields = self._get_c_fields(self.schema)
-        return self._wrap_struct("Root", c_fields)
+        return self._wrap_struct(f"{self.scope}_c_root_structure", c_fields)
 
     def _get_c_fields(self, obj: Object) -> list[Tuple[str, CType]]:
         c_types = []
@@ -70,7 +73,7 @@ class TypeConverter(object):
             return self._wrap_dict(inner_c_type)
 
     def _wrap_struct(self, name: str, c_fields: list[Tuple[str, CType]]) -> Type[Structure]:
-        name = f"c_structure_{name}"
+        name = f"{self.scope}_c_structure_{name}"
         structure = self.c_types_cache.get(name)
         if not structure:
             structure = type(
@@ -85,7 +88,7 @@ class TypeConverter(object):
         return structure  # type: ignore
 
     def _wrap_list(self, c_type: CType) -> Type[Structure]:
-        name = f"c_list_{c_type.__name__}"
+        name = f"{self.scope}_c_list_{c_type.__name__}"
         clist = self.c_types_cache.get(name)
         if not clist:
             clist = type(
@@ -103,7 +106,7 @@ class TypeConverter(object):
         return clist  # type: ignore
 
     def _wrap_dict(self, c_type: CType) -> Type[Structure]:
-        name = f"c_dict_{c_type.__name__}"
+        name = f"{self.scope}_c_dict_{c_type.__name__}"
         cdict = self.c_types_cache.get(name)
         if not cdict:
             cdict = type(
@@ -122,7 +125,7 @@ class TypeConverter(object):
         return cdict  # type: ignore
 
     def _wrap_optional(self, c_type: CType) -> Type[Structure]:
-        name = f"c_optional_{c_type.__name__}"
+        name = f"{self.scope}_c_optional_{c_type.__name__}"
         c_optional = self.c_types_cache.get(name)
         if not c_optional:
             c_optional = type(
@@ -273,11 +276,9 @@ class ValueConverter(TypeConverter):
         )
 
     def _c_dict_to_py_dict(self, prop: Property, c_dict: Structure) -> dict[str, Any]:
-        # print("n", c_dict.len)
         c_type = self._get_c_type(prop)
         keys_pointer = cast(c_dict.keys, POINTER(c_char_p * c_dict.len))
         values_pointer = cast(c_dict.values, POINTER(c_type * c_dict.len))
-        # print("n", values_pointer.contents[0])
         return {
             keys_pointer.contents[i].decode("utf-8"):
                 self._c_value_to_py_value(prop, values_pointer.contents[i])

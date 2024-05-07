@@ -40,8 +40,8 @@ class ToolSchema(BaseModel):
         except BaseException as e:
             raise ValueError(f"Failed to load tool at {path}: {e}")
 
-        args_converter = ValueConverter(self.args_schema) if self.args_schema else None
-        result_converter = ValueConverter(self.result_schema) if self.result_schema else None
+        args_converter = ValueConverter(self.name, self.args_schema) if self.args_schema else None
+        result_converter = ValueConverter(self.name, self.result_schema) if self.result_schema else None
 
         try:
             c_func = getattr(lib, self.name)
